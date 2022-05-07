@@ -1,6 +1,24 @@
-.Field {
-    border: 10px solid red;
+.App {
+
+}
+.FieldWrapper {
     display: flex;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+
+.Field {
+    display: flex;
+    width: 560px;
     flex-flow: column;
     flex-wrap: nowrap;
+
+    background-image: url('./wood.jpg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    box-shadow: 25px 25px 25px #2e1c11;
+    border: 1px solid #2e1c11;
 }

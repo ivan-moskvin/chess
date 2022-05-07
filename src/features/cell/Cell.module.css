@@ -1,4 +1,16 @@
 .Cell {
     width: 70px;
-    border: 1px solid green;
+    height: 70px;
+    --shadow-coef: 1px;
+    opacity: 0.6;
+}
+
+.CellBlack {
+    background-color: #d08b45;
+    box-shadow: 0 0 var(--shadow-coef) #d08b45;
+}
+
+.CellWhite {
+    background-color: #fdcd9f;
+    box-shadow: 0 0 var(--shadow-coef) #fdcd9f;
 }
