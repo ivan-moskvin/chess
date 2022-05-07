@@ -1,8 +1,14 @@
 .Cell {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
     width: 70px;
     height: 70px;
-    --shadow-coef: 1px;
-    opacity: 0.6;
+    opacity: 0.55;
+
+    --shadow-coef: 2px;
 }
 
 .CellBlack {
