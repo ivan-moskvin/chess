@@ -44,3 +44,5 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+Wood image from <a href="https://www.freepik.com/photos/light-wood">Light wood photo created by rawpixel.com - www.freepik.com</a>
