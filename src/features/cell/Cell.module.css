@@ -4,10 +4,11 @@
     flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    width: 70px;
-    height: 70px;
+    width: var(--cell-size);
+    height: var(--cell-size);
     opacity: 0.55;
 
+    --cell-size: 80px;
     --shadow-coef: 2px;
 }
 

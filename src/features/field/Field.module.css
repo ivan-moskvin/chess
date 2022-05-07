@@ -1,6 +1,3 @@
-.App {
-
-}
 .FieldWrapper {
     display: flex;
     width: 100vw;
@@ -11,7 +8,7 @@
 
 .Field {
     display: flex;
-    width: 560px;
+    width: calc(var(--cell-size) * 8);
     flex-flow: column;
     flex-wrap: nowrap;
 
@@ -19,6 +16,6 @@
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
-    box-shadow: 25px 25px 25px #2e1c11;
+    box-shadow: 25px 25px 25px #444444;
     border: 1px solid #d08b45;
 }
