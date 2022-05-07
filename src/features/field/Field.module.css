@@ -1,0 +1,6 @@
+.Field {
+    border: 10px solid red;
+    display: flex;
+    flex-flow: column;
+    flex-wrap: nowrap;
+}
