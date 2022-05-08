@@ -1,5 +1,5 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import fieldReducer from '../features/field/fieldSlice';
+import fieldReducer from '../features/board/boardSlice';
 
 export const store = configureStore({
   reducer: {

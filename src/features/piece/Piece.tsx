@@ -1,5 +1,12 @@
 import styles from './Piece.module.css'
+import {PieceType} from "./pieceSlice";
+import {FC} from "react";
+import classNames from "classnames";
 
-export const Piece = () => {
-  return <div className={styles.Piece}/>
+interface Props {
+  type: PieceType
+}
+
+export const Piece: FC<Props> = ({ type }) => {
+  return <div className={classNames([styles.Piece, styles[`Piece${type}`]])}/>
 }

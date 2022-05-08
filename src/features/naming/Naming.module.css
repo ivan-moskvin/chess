@@ -1,0 +1,69 @@
+.Naming {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.NamingChars {
+    flex-flow: row;
+    width: calc(100% - var(--naming-size) * 2);
+    height: var(--naming-size);
+}
+
+.NamingDigits {
+    flex-flow: column;
+    width: var(--naming-size);
+    height: calc(100% - var(--naming-size) * 2);
+}
+
+
+.NamingItems {
+    position: absolute;
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    color: #7d512a;
+}
+
+.NamingItems--top {
+    top: 0;
+    left: var(--naming-size);
+}
+
+.NamingItems--right {
+    top: var(--naming-size);
+    right: 0;
+}
+
+.NamingItems--bottom {
+    bottom: 0;
+    left: var(--naming-size);
+}
+
+.NamingItems--left {
+    top: var(--naming-size);
+    left: 0;
+}
+
+
+.NamingItem {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--naming-font-size);
+    line-height: var(--naming-font-size);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.NamingItemChar {
+    width: var(--cell-size) ;
+}
+
+.NamingItemDigit {
+    height: var(--cell-size) ;
+}
