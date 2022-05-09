@@ -14,6 +14,7 @@ https://ivan-moskvin.github.io/chess/
 ## Ideas
 - Beating animation
 - Clock
+- Hotseat multiplayer (rotate board)
 
 ## Credits
 
