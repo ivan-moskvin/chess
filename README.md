@@ -11,6 +11,10 @@ https://ivan-moskvin.github.io/chess/
 - [ ] Add time travel (reverse?)
 - [ ] Optimize graphics
 
+## Ideas
+- Beating animation
+- Clock
+
 ## Credits
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
