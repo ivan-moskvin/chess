@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.3] - 2022-05-09
+
+### Added
+- Piece movement. No checks at this time
+
 ## [0.0.2] - 2022-05-09
 
 ### Added
