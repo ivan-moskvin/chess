@@ -8,6 +8,7 @@ https://ivan-moskvin.github.io/chess/
 - [x] Add pieces
 - [x] Add piece movement
 - [ ] Add movement rules
+- [ ] Add time travel (reverse?)
 - [ ] Optimize graphics
 
 ## Credits
