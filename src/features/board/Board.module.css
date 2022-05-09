@@ -26,6 +26,8 @@
 }
 
 .Squares {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-flow: column;
     flex-wrap: nowrap;

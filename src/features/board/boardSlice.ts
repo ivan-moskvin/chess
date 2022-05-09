@@ -1,16 +1,16 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {Square, SquareColor} from "../square/squareSlice";
-import {RootState} from "../../app/store";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {ISquare, SquareColor} from "../square/squareSlice";
+import {AppThunk, RootState} from "../../app/store";
+import {PieceColor, PieceType} from "../piece/pieceSlice";
+
 interface Board {
-  squares: Square[][],
-  boardMap: { [key: string]: Square }
+  squares: ISquare[][],
 }
 
 const boardSlice = createSlice({
   name: 'field',
   initialState: {
     squares: [],
-    boardMap: {}
   } as Board,
   reducers: {
     setInitialCells: (state: Board) => {
@@ -20,7 +20,7 @@ const boardSlice = createSlice({
           .map(() =>
             new Array(8)
               .fill(null)
-              .map(() => ({} as Square)))
+              .map(() => ({} as ISquare)))
 
       const n = squares.length
       const m = squares[0].length
@@ -36,24 +36,70 @@ const boardSlice = createSlice({
             squares[i][j].color = j % 2 === 0 ? SquareColor.WHITE : SquareColor.BLACK
           }
 
-          state.boardMap[name] = squares[i][j]
+          // Set square's name
           squares[i][j].name = name
         }
       }
 
       state.squares = squares
     },
-    setInitialPieces: () => {
+    placeFigure: (state: Board, action: PayloadAction<{ position: string, type: PieceType, color: PieceColor }>) => {
+      const { position, type, color } = action.payload
+      const [letter, digit] = position
 
+      const rank = 8 - +digit
+      const file = letter.toLowerCase().charCodeAt(0) - 97
+
+      state.squares[rank][file].piece = {
+        type,
+        color,
+      }
     }
   }
 })
 
 
-export const selectSquares = (state: RootState) => state.field.squares;
 
-export const selectBoardMap = (state: RootState) => state.field.boardMap;
+export const setInitialPieces =
+  (): AppThunk =>
+    (dispatch) => {
+      // Place pawns
+      for(let i = 0, charCode = 97; i < 8; i++, charCode++) {
+        dispatch(placeFigure({ position: String.fromCharCode(charCode) + '2', type: PieceType.PAWN, color: PieceColor.WHITE }))
+      }
+      for(let i = 0, charCode = 97; i < 8; i++, charCode++) {
+        dispatch(placeFigure({ position: String.fromCharCode(charCode) + '7', type: PieceType.PAWN, color: PieceColor.BLACK }))
+      }
 
-export const { setInitialCells } = boardSlice.actions
+      // Place rooks
+      dispatch(placeFigure({position: 'A8', type: PieceType.ROOK, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'H8', type: PieceType.ROOK, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'A1', type: PieceType.ROOK, color: PieceColor.WHITE }));
+      dispatch(placeFigure({position: 'H1', type: PieceType.ROOK, color: PieceColor.WHITE }));
+
+      // Place bishops
+      dispatch(placeFigure({position: 'B8', type: PieceType.BISHOP, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'G8', type: PieceType.BISHOP, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'B1', type: PieceType.BISHOP, color: PieceColor.WHITE }));
+      dispatch(placeFigure({position: 'G1', type: PieceType.BISHOP, color: PieceColor.WHITE }));
+
+      // Place knights
+      dispatch(placeFigure({position: 'C8', type: PieceType.KNIGHT, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'F8', type: PieceType.KNIGHT, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'C1', type: PieceType.KNIGHT, color: PieceColor.WHITE }));
+      dispatch(placeFigure({position: 'F1', type: PieceType.KNIGHT, color: PieceColor.WHITE }));
+
+      // Place queens
+      dispatch(placeFigure({position: 'E8', type: PieceType.QUEEN, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'D1', type: PieceType.QUEEN, color: PieceColor.WHITE }));
+
+      // Place kings
+      dispatch(placeFigure({position: 'D8', type: PieceType.KING, color: PieceColor.BLACK }));
+      dispatch(placeFigure({position: 'E1', type: PieceType.KING, color: PieceColor.WHITE }));
+}
+
+export const selectSquares = (state: RootState) => state.board.squares;
+
+export const { setInitialCells, placeFigure } = boardSlice.actions
 
 export default boardSlice.reducer

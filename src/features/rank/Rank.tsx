@@ -1,10 +1,10 @@
-import {Square as SquareType} from "../square/squareSlice";
+import {ISquare} from "../square/squareSlice";
 import {Square} from "../square/Square";
 import {FC} from "react";
 import styles from './Rank.module.css';
 
 interface Props {
-  rank: SquareType[]
+  rank: ISquare[]
 }
 
 export const Rank: FC<Props> = ({ rank }) => {

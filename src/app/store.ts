@@ -1,9 +1,9 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import fieldReducer from '../features/board/boardSlice';
+import boardReducer from '../features/board/boardSlice';
 
 export const store = configureStore({
   reducer: {
-    field: fieldReducer,
+    board: boardReducer,
   },
 });
 

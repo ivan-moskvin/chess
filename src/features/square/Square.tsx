@@ -1,10 +1,11 @@
 import styles from './Square.module.css'
-import {Square as SquareType, SquareColor} from "./squareSlice";
+import {ISquare, SquareColor} from "./squareSlice";
 import {FC} from "react";
 import classNames from "classnames";
+import {Piece} from "../piece/Piece";
 
 interface Props {
-  square: SquareType
+  square: ISquare
 }
 
 export const Square: FC<Props> = ({ square }) => {
@@ -14,5 +15,5 @@ export const Square: FC<Props> = ({ square }) => {
       square.color === SquareColor.BLACK
         ? styles.black
         : styles.white])}
-  >{square.name}</div>
+  >{square.piece ? <Piece piece={square.piece} /> : null}</div>
 }
