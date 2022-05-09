@@ -1,6 +1,7 @@
 {
   "name": "chess-pet-project",
   "version": "0.1.0",
+  "homepage": "https://ivan-moskvin.github.io/chess/",
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.1",
