@@ -76,3 +76,7 @@
     background-position: bottom;
     background-image: url('./images/white-king.png');
 }
+
+.Dragging {
+    opacity: 0.5;
+}

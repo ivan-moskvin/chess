@@ -1,10 +1,25 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {ISquare, SquareColor} from "../square/squareSlice";
 import {AppThunk, RootState} from "../../app/store";
-import {PieceColor, PieceType} from "../piece/pieceSlice";
+import {IPiece, PieceColor, PieceType} from "../piece/pieceSlice";
 
 interface Board {
   squares: ISquare[][],
+}
+
+/**
+ * Getting coords from position name
+ * @param name
+ */
+const getCoordFromPosition = (name: string): [ rank: number, file: number ] => {
+  const [letter, digit] = name
+  const rank = 8 - +digit
+  const file = letter.toLowerCase().charCodeAt(0) - 97
+
+  return [
+    rank,
+    file
+  ]
 }
 
 const boardSlice = createSlice({
@@ -45,20 +60,29 @@ const boardSlice = createSlice({
     },
     placeFigure: (state: Board, action: PayloadAction<{ position: string, type: PieceType, color: PieceColor }>) => {
       const { position, type, color } = action.payload
-      const [letter, digit] = position
-
-      const rank = 8 - +digit
-      const file = letter.toLowerCase().charCodeAt(0) - 97
+      const [rank, file] = getCoordFromPosition(position);
 
       state.squares[rank][file].piece = {
         type,
         color,
+        position: position.toUpperCase(),
       }
+    },
+    movePieceFromTo: (state: Board, action: PayloadAction<{ from: string, to: string, piece: IPiece }>) => {
+      const { from, to, piece } = action.payload;
+
+      const [rankFrom, fileFrom] = getCoordFromPosition(from);
+      const [rankTo, fileTo] = getCoordFromPosition(to);
+
+      state.squares[rankFrom][fileFrom].piece = {}
+      state.squares[rankTo][fileTo].piece = piece
     }
   }
 })
 
+export const { setInitialCells, placeFigure, movePieceFromTo } = boardSlice.actions
 
+export const selectSquares = (state: RootState) => state.board.squares;
 
 export const setInitialPieces =
   (): AppThunk =>
@@ -96,10 +120,16 @@ export const setInitialPieces =
       // Place kings
       dispatch(placeFigure({position: 'D8', type: PieceType.KING, color: PieceColor.BLACK }));
       dispatch(placeFigure({position: 'E1', type: PieceType.KING, color: PieceColor.WHITE }));
+    }
+
+
+export const movePieceTo = (to: string): AppThunk => (dispatch, getState) => {
+  const { piece: { current } } = getState()
+
+  dispatch(movePieceFromTo({ from: current.position as string, to, piece: { ...current, position: to} }))
 }
 
-export const selectSquares = (state: RootState) => state.board.squares;
 
-export const { setInitialCells, placeFigure } = boardSlice.actions
+
 
 export default boardSlice.reducer

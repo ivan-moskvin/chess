@@ -1,14 +1,34 @@
 import styles from './Piece.module.css'
-import {IPiece} from "./pieceSlice";
+import {setCurrent} from "./pieceSlice";
 import {FC} from "react";
 import classNames from "classnames";
+import { useDrag } from 'react-dnd';
+import {ISquare} from "../square/squareSlice";
+import {useAppDispatch} from "../../app/hooks";
 
 interface Props {
-  piece: IPiece
+  square: ISquare;
 }
 
-export const Piece: FC<Props> = ({ piece }) => {
-  const { color, type } = piece;
+export const Piece: FC<Props> = ({ square }) => {
+  const { piece: {color, type} } = square;
+  const dispatch = useAppDispatch();
 
-  return <div className={classNames([styles.Piece, styles[`Piece${color}${type}`]])}/>
+  const [collected, drag] = useDrag(() => ({
+    type: 'piece',
+    collect: monitor => {
+      if(monitor.isDragging()) {
+        dispatch(setCurrent(square.piece))
+      }
+      return {
+        piece: square.piece,
+        isDragging: monitor.isDragging(),
+      }},
+  }), [square])
+
+
+  return <div
+    ref={drag}
+    className={classNames([collected.isDragging ? styles.Dragging : '', styles.Piece, styles[`Piece${color}${type}`]])}
+  />
 }

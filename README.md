@@ -6,7 +6,7 @@ https://ivan-moskvin.github.io/chess/
 - [x] Add board
 - [x] Add naming
 - [x] Add pieces
-- [ ] Add piece movement
+- [x] Add piece movement
 - [ ] Add movement rules
 - [ ] Optimize graphics
 

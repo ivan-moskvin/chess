@@ -1,3 +1,5 @@
+import {createSlice} from "@reduxjs/toolkit";
+
 export enum PieceType {
   KING = "King",
   QUEEN = "Queen",
@@ -13,6 +15,23 @@ export enum PieceColor {
 }
 
 export interface IPiece {
-  type: PieceType,
-  color: PieceColor
+  position?: string,
+  type?: PieceType,
+  color?: PieceColor
 }
+
+const pieceSlice = createSlice({
+  name: 'piece',
+  initialState: {
+    current: {} as IPiece
+  },
+  reducers: {
+    setCurrent: (state, action) => {
+      state.current = action.payload
+    }
+  }
+})
+
+export const { setCurrent } = pieceSlice.actions
+
+export default pieceSlice.reducer
