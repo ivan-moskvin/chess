@@ -1,6 +1,6 @@
 {
   "name": "chess-pet-project",
-  "version": "0.1.0",
+  "version": "0.0.4",
   "homepage": "https://ivan-moskvin.github.io/chess/",
   "private": true,
   "dependencies": {
