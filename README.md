@@ -16,6 +16,7 @@ https://ivan-moskvin.github.io/chess/
 - Pawn to queen transition
 - Notification system (notifies, check/mate overlay)
 - Turns logging
+- Persistence
 - Tests
 
 ## Ideas
