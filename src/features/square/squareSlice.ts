@@ -1,4 +1,4 @@
-import {IPiece} from "../piece/pieceSlice";
+import { IPiece } from "../piece/pieceSlice";
 
 export enum SquareColor {
   BLACK,
@@ -7,6 +7,6 @@ export enum SquareColor {
 
 export interface ISquare {
   color: SquareColor;
-  piece: IPiece;
-  name: string;
+  piece?: IPiece;
+  position: string;
 }

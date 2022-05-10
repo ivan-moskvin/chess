@@ -1,11 +1,12 @@
 import styles from './Square.module.css'
-import {ISquare, SquareColor} from "./squareSlice";
-import {FC} from "react";
+import { ISquare, SquareColor } from "./squareSlice";
+import { FC } from "react";
 import classNames from "classnames";
-import {Piece} from "../piece/Piece";
+import { Piece } from "../piece/Piece";
 import { useDrop } from 'react-dnd'
-import {useAppDispatch} from "../../app/hooks"
-import {movePieceTo} from "../board/boardSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks"
+import { canIMoveOrBeat, selectSquares, tryMovePieceTo } from "../board/boardSlice";
+import { selectCurrentPiece } from "../piece/pieceSlice";
 
 interface Props {
   square: ISquare
@@ -13,20 +14,28 @@ interface Props {
 
 export const Square: FC<Props> = ({ square }) => {
   const dispatch = useAppDispatch();
+  const currentPiece = useAppSelector(selectCurrentPiece)
+  const squares = useAppSelector(selectSquares)
 
-  const [, drop] = useDrop(() => ({
+  const [ , drop ] = useDrop(() => ({
     accept: 'piece',
     drop: () => {
-      dispatch(movePieceTo(square.name))
-    }
-  }), [square.name])
+      dispatch(tryMovePieceTo(square.position))
+    },
+    canDrop: () => {
+      return canIMoveOrBeat(currentPiece, square.position, squares)
+    },
+    collect: (monitor) => ({
+      canDrop: monitor.canDrop()
+    })
+  }), [ currentPiece, square.position ])
 
   return <div
-    ref={drop}
-    className={classNames([
+    ref={ drop }
+    className={ classNames([
       styles.Square,
       square.color === SquareColor.BLACK
         ? styles.black
-        : styles.white])}
-  >{square.piece ? <Piece square={square} /> : null}</div>
+        : styles.white ]) }
+  >{ square.piece ? <Piece square={ square }/> : null }</div>
 }
