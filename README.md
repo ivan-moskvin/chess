@@ -3,18 +3,20 @@
 https://ivan-moskvin.github.io/chess/
 
 ## Roadmap
-- [x] Add board
-- [x] Add naming
-- [x] Add pieces
-- [x] Add piece movement
-- [ ] Add movement rules
-- [ ] Add time travel (reverse?)
-- [ ] Optimize graphics
+- ✅ Board
+- ✅ Naming
+- ✅ Pieces
+- ✅ Piece movement
+- Movement rules
+- Turns
+- Tests️
 
 ## Ideas
 - Beating animation
+- Add time travel (reverse?)
 - Clock
 - Hotseat multiplayer (rotate board)
+- Optimize graphics
 
 ## Credits
 
