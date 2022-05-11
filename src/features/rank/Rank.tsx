@@ -1,6 +1,6 @@
-import {ISquare} from "../square/squareSlice";
-import {Square} from "../square/Square";
-import {FC} from "react";
+import { ISquare } from "../square/squareSlice";
+import { Square } from "../square/Square";
+import { FC } from "react";
 import styles from './Rank.module.css';
 
 interface Props {
@@ -8,9 +8,9 @@ interface Props {
 }
 
 export const Rank: FC<Props> = ({ rank }) => {
-  return <div className={styles.Rank}>
+  return <div className={ styles.Rank }>
     {
-      rank.map((square, i) => <Square key={i} square={square} />)
+      rank.map((square) => <Square key={ square.position } square={ square }/>)
     }
   </div>
 }

@@ -17,3 +17,7 @@
     background-color: #fdcd9f;
     box-shadow: 0 0 var(--shadow-coef) #fdcd9f;
 }
+
+.active {
+    box-shadow: inset 0 0 20px black;
+}

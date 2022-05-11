@@ -9,4 +9,6 @@ export interface ISquare {
   color: SquareColor;
   piece?: IPiece;
   position: string;
+  active: boolean;
+  highlighted: boolean;
 }

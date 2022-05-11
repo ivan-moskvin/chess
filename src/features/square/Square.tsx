@@ -5,7 +5,7 @@ import classNames from "classnames";
 import { Piece } from "../piece/Piece";
 import { useDrop } from 'react-dnd'
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { canIMoveOrBeat, selectSquares, tryMovePieceTo } from "../board/boardSlice";
+import { canIMoveOrBeat, selectActiveSquare, selectSquares, tryMovePieceTo } from "../board/boardSlice";
 import { selectCurrentPiece } from "../piece/pieceSlice";
 
 interface Props {
@@ -16,6 +16,7 @@ export const Square: FC<Props> = ({ square }) => {
   const dispatch = useAppDispatch();
   const currentPiece = useAppSelector(selectCurrentPiece)
   const squares = useAppSelector(selectSquares)
+  const activeSquare = useAppSelector(selectActiveSquare)
 
   const [ , drop ] = useDrop(() => ({
     accept: 'piece',
@@ -34,6 +35,7 @@ export const Square: FC<Props> = ({ square }) => {
     ref={ drop }
     className={ classNames([
       styles.Square,
+      square.position === activeSquare ? styles.active : null,
       square.color === SquareColor.BLACK
         ? styles.black
         : styles.white ]) }

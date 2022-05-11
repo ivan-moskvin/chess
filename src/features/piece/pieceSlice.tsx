@@ -78,7 +78,9 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
         if (dx > 0) return false
         return color === PieceColor.BLACK ? y0 < 2 : y0 > 5
       }
-      // Cannot move more then 2 cells far
+      // Cannot move more than 2 cells far horizontally
+      if (dx > 1) return false
+      // Cannot move more then 2 cells far vertically
       if (dy > 2) return false
 
       // Cannot move horizontally

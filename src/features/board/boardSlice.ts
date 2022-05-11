@@ -13,12 +13,14 @@ import {
 
 interface Board {
   squares: ISquare[][],
+  activeSquare: string,
 }
 
 const boardSlice = createSlice({
   name: 'field',
   initialState: {
     squares: [],
+    activeSquare: ''
   } as Board,
   reducers: {
     setInitialCells: (state: Board) => {
@@ -61,6 +63,12 @@ const boardSlice = createSlice({
         position: position.toUpperCase(),
       }
     },
+    setActiveSquare: (state: Board, action: PayloadAction<ISquare>) => {
+      state.activeSquare = action.payload.position
+    },
+    clearActiveSquare: (state) => {
+      state.activeSquare = ''
+    },
     movePieceFromTo: (state: Board, action: PayloadAction<{ from: string, to: string, piece: IPiece }>) => {
       const { from, to, piece } = action.payload;
 
@@ -73,7 +81,7 @@ const boardSlice = createSlice({
   }
 })
 
-export const { setInitialCells, placeFigure, movePieceFromTo } = boardSlice.actions
+export const { setInitialCells, placeFigure, movePieceFromTo, setActiveSquare, clearActiveSquare } = boardSlice.actions
 
 
 export const setInitialPieces =
@@ -158,6 +166,8 @@ export const canIMoveOrBeat = (current: IPiece, to: PiecePosition, squares: ISqu
   return !destinationPiece || canIBeat(current, destinationPiece!)
 }
 
-export const selectSquares = (state: RootState) => state.board.squares;
+export const selectSquares = (state: RootState) => state.board.squares
+
+export const selectActiveSquare = (state: RootState) => state.board.activeSquare
 
 export default boardSlice.reducer
