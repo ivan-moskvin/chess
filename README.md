@@ -9,6 +9,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Pieces
 - ✅ Piece movement
 - ✅ Basic movement rules
+- Possible moves highlighting
 - Obstacles moving restrictions
 - King moving restrictions
 - Check/Mate conditions
