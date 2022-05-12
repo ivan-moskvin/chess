@@ -55,7 +55,7 @@ const boardSlice = createSlice({
           squares[i][j] = {
             ...squares[i][j],
             position: name,
-            coords: [i, j]
+            coords: [ i, j ]
           }
         }
       }
@@ -65,7 +65,7 @@ const boardSlice = createSlice({
   }, extraReducers: (builder) => {
     builder.addCase(placePiece, (state, action) => {
       const { position, type, color } = action.payload
-      const [rank, file] = getCoordFromPosition(position)
+      const [ rank, file ] = getCoordFromPosition(position)
 
       state.squares[rank][file].piece = {
         type,
@@ -80,14 +80,14 @@ const boardSlice = createSlice({
         const square = findSquare(position)
 
         // If piece is no longer at the start position
-        if(!square.piece) return
+        if (!square.piece) return
 
         state.activeSquare = position
 
-        for(let i = 0; i < squares.length; i++) {
+        for (let i = 0; i < squares.length; i++) {
           for (let j = 0; j < squares[0].length; j++) {
             if (canIMoveOrBeat(square.piece!, squares[i][j].position, squares)) {
-              state.possibleMovements[squares[i][j].position] = null;
+              state.possibleMovements[squares[i][j].position] = null
             }
           }
         }
@@ -109,8 +109,8 @@ const boardSlice = createSlice({
     builder.addCase(movePieceFromTo, (state, action) => {
       const { from, to, piece } = action.payload
 
-      const [rankFrom, fileFrom] = getCoordFromPosition(from)
-      const [rankTo, fileTo] = getCoordFromPosition(to)
+      const [ rankFrom, fileFrom ] = getCoordFromPosition(from)
+      const [ rankTo, fileTo ] = getCoordFromPosition(to)
 
       delete state.squares[rankFrom][fileFrom].piece
       state.squares[rankTo][fileTo].piece = piece

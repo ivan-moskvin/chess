@@ -151,8 +151,8 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
  * @param to
  * @param squares
  */
-export const canIMoveOrBeat = (current: IPiece, to: PiecePosition, squares: ISquare[][]) => {
-  const [xTo, yTo] = getCoordFromPosition(to)
+export const canIMoveOrBeat = (current: IPiece, to: PiecePosition, squares: ISquare[][]): boolean => {
+  const [ xTo, yTo ] = getCoordFromPosition(to)
   const destinationSquare = squares[xTo][yTo]
   const destinationPiece = destinationSquare.piece
 
