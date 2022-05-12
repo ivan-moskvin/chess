@@ -6,9 +6,9 @@ export enum SquareColor {
 }
 
 export interface ISquare {
-  color: SquareColor;
-  piece?: IPiece;
-  position: string;
-  active: boolean;
-  highlighted: boolean;
+  color: SquareColor,
+  piece?: IPiece,
+  position: string,
+  coords: number[],
+  active: boolean,
 }

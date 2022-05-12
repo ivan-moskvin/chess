@@ -1,26 +1,34 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { ISquare, SquareColor } from "../square/squareSlice"
 import { AppThunk, RootState } from "../../app/store"
-import {dragPiece, dropPiece,
+import {
+  canIMoveOrBeat,
+  dragPiece,
+  dropPiece,
   getCoordFromPosition,
+  IPiece,
   movePieceFromTo,
   PieceColor,
-  PieceType, placePiece
+  PiecePosition,
+  PieceType,
+  placePiece
 } from "../piece/pieceSlice"
 
 interface Board {
   squares: ISquare[][],
   activeSquare: string,
+  possibleMovements: { [key: PiecePosition]: null },
 }
 
 const boardSlice = createSlice({
   name: "field",
   initialState: {
     squares: [],
-    activeSquare: ""
+    activeSquare: "",
+    possibleMovements: {}
   } as Board,
   reducers: {
-    initCells: (state: Board) => {
+    initSquares: (state: Board) => {
       const squares =
         new Array(8)
           .fill(null)
@@ -43,13 +51,17 @@ const boardSlice = createSlice({
             squares[i][j].color = j % 2 === 0 ? SquareColor.WHITE : SquareColor.BLACK
           }
 
-          // Set square's name
-          squares[i][j].position = name
+          // Set square's params
+          squares[i][j] = {
+            ...squares[i][j],
+            position: name,
+            coords: [i, j]
+          }
         }
       }
 
       state.squares = squares
-    }
+    },
   }, extraReducers: (builder) => {
     builder.addCase(placePiece, (state, action) => {
       const { position, type, color } = action.payload
@@ -62,11 +74,37 @@ const boardSlice = createSlice({
       }
     })
     builder
-      .addCase(dragPiece, (state, action) => {
-        state.activeSquare = action.payload.position
+      .addCase(dragPiece, (state, action: PayloadAction<IPiece>) => {
+        const { squares } = state
+        const { position } = action.payload
+        const square = findSquare(position)
+
+        // If piece is no longer at the start position
+        if(!square.piece) return
+
+        state.activeSquare = position
+
+        for(let i = 0; i < squares.length; i++) {
+          for (let j = 0; j < squares[0].length; j++) {
+            if (canIMoveOrBeat(square.piece!, squares[i][j].position, squares)) {
+              state.possibleMovements[squares[i][j].position] = null;
+            }
+          }
+        }
+
+        function findSquare(position: PiecePosition): ISquare {
+          for (let i = 0; i < state.squares.length; i++) {
+            for (let j = 0; j < state.squares[0].length; j++) {
+              if (state.squares[i][j].position === position) return state.squares[i][j]
+            }
+          }
+
+          return {} as ISquare
+        }
       })
     builder.addCase(dropPiece, (state) => {
       state.activeSquare = ""
+      state.possibleMovements = {}
     })
     builder.addCase(movePieceFromTo, (state, action) => {
       const { from, to, piece } = action.payload
@@ -79,9 +117,6 @@ const boardSlice = createSlice({
     })
   }
 })
-
-export const { initCells } = boardSlice.actions
-
 
 export const initPieces =
   (): AppThunk =>
@@ -128,10 +163,10 @@ export const initPieces =
       dispatch(placePiece({ position: "D8", type: PieceType.KING, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
     }
-
+export const { initSquares } = boardSlice.actions
 
 export const selectSquares = (state: RootState) => state.board.squares
-
 export const selectActiveSquare = (state: RootState) => state.board.activeSquare
+export const selectPossibleMovements = (state: RootState) => state.board.possibleMovements
 
 export default boardSlice.reducer

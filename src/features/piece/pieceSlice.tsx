@@ -46,10 +46,10 @@ const pieceSlice = createSlice({
   })
 })
 
-export const dragPiece = createAction<IPiece>('PIECE_DRAG')
-export const dropPiece = createAction<void>('PIECE_DROP')
-export const placePiece = createAction<IPiece>('PIECE_PLACE')
-export const movePieceFromTo = createAction<Movement>('PIECE_MOVE_FROM_TO')
+export const dragPiece = createAction<IPiece>('piece/drag')
+export const dropPiece = createAction<void>('piece/drop')
+export const placePiece = createAction<IPiece>('piece/place')
+export const movePieceFromTo = createAction<Movement>('piece/move-from-to')
 
 /**
  * Gets coords from position name
@@ -88,20 +88,23 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
       if (dx === 1 && dy === 1) {
         if (!squares[y1][x1].piece) return false
       }
+
       // Can move 2 cells far only for the first move
       if (dy === 2) {
         if (dx > 0) return false
         return color === PieceColor.BLACK ? y0 < 2 : y0 > 5
       }
+
       // Cannot move more than 2 cells far horizontally
       if (dx > 1) return false
-      // Cannot move more then 2 cells far vertically
+
+      // Cannot move more than 2 cells far vertically
       if (dy > 2) return false
 
       // Cannot move horizontally
       if (dx > 0 && dy === 0) return false
 
-      // Blacks and whites restrictions
+      // Cannot move backwards
       return color === PieceColor.BLACK ? y1 >= y0 : y0 >= y1
     case PieceType.ROOK:
       // Cannot move diagonally
@@ -132,7 +135,11 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
   return false
 }
 
-export const movePieceTo = (to: string): AppThunk => (dispatch, getState) => {
+/**
+ * Moving piece to square
+ * @param to
+ */
+export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState) => {
   const { piece: { current } } = getState()
 
   dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: { ...current, position: to } }))

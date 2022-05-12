@@ -2,13 +2,12 @@ import React, {useEffect} from 'react';
 import {Board} from "./features/board/Board";
 import styles from './App.module.css'
 import {useAppDispatch} from "./app/hooks";
-import {initCells, initPieces} from "./features/board/boardSlice";
+import {initSquares, initPieces} from "./features/board/boardSlice";
 function App() {
   const dispatch = useAppDispatch();
 
-
   useEffect(() => {
-    dispatch(initCells())
+    dispatch(initSquares())
     dispatch(initPieces())
 
   }, [dispatch])
