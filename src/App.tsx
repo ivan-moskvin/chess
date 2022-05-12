@@ -2,14 +2,14 @@ import React, {useEffect} from 'react';
 import {Board} from "./features/board/Board";
 import styles from './App.module.css'
 import {useAppDispatch} from "./app/hooks";
-import {setInitialCells, setInitialPieces} from "./features/board/boardSlice";
+import {initCells, initPieces} from "./features/board/boardSlice";
 function App() {
   const dispatch = useAppDispatch();
 
 
   useEffect(() => {
-    dispatch(setInitialCells())
-    dispatch(setInitialPieces())
+    dispatch(initCells())
+    dispatch(initPieces())
 
   }, [dispatch])
 

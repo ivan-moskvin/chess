@@ -1,6 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAction, createSlice } from "@reduxjs/toolkit"
 import { ISquare } from "../square/squareSlice";
-import { RootState } from "../../app/store";
+import { AppThunk, RootState } from "../../app/store"
 
 export enum PieceType {
   KING = "King",
@@ -17,9 +17,15 @@ export enum PieceColor {
 }
 
 export interface IPiece {
-  position?: string,
+  position: string,
   type?: PieceType,
   color?: PieceColor
+}
+
+export interface Movement {
+  from: string,
+  to: string,
+  piece: IPiece,
 }
 
 export type PiecePosition = string
@@ -29,12 +35,21 @@ const pieceSlice = createSlice({
   initialState: {
     current: {} as IPiece
   },
-  reducers: {
-    setCurrent: (state, action) => {
+  reducers: {},
+  extraReducers: (builder => {
+    builder.addCase(dragPiece, (state, action) => {
       state.current = action.payload
-    }
-  }
+    })
+    builder.addCase(dropPiece, (state) => {
+      state.current = {} as IPiece
+    })
+  })
 })
+
+export const dragPiece = createAction<IPiece>('PIECE_DRAG')
+export const dropPiece = createAction<void>('PIECE_DROP')
+export const placePiece = createAction<IPiece>('PIECE_PLACE')
+export const movePieceFromTo = createAction<Movement>('PIECE_MOVE_FROM_TO')
 
 /**
  * Gets coords from position name
@@ -117,6 +132,29 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
   return false
 }
 
+export const movePieceTo = (to: string): AppThunk => (dispatch, getState) => {
+  const { piece: { current } } = getState()
+
+  dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: { ...current, position: to } }))
+}
+
+/**
+ * Checks if can move or beat piece
+ * @param current
+ * @param to
+ * @param squares
+ */
+export const canIMoveOrBeat = (current: IPiece, to: PiecePosition, squares: ISquare[][]) => {
+  const [xTo, yTo] = getCoordFromPosition(to)
+  const destinationSquare = squares[xTo][yTo]
+  const destinationPiece = destinationSquare.piece
+
+  // If current piece cannot move that way return
+  if (!canIMove(current, to, squares)) return false
+
+  return !destinationPiece || canIBeat(current, destinationPiece!)
+}
+
 /**
  * Checks if can beat piece
  * @param me
@@ -135,8 +173,6 @@ export const canIBeat = (me: IPiece, destinationPiece: IPiece): boolean => {
 
   return color !== opponentsColor;
 }
-
-export const { setCurrent } = pieceSlice.actions
 
 export const selectCurrentPiece = (state: RootState) => state.piece.current
 

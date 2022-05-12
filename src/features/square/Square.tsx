@@ -5,8 +5,8 @@ import classNames from "classnames";
 import { Piece } from "../piece/Piece";
 import { useDrop } from 'react-dnd'
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { canIMoveOrBeat, selectActiveSquare, selectSquares, tryMovePieceTo } from "../board/boardSlice";
-import { selectCurrentPiece } from "../piece/pieceSlice";
+import { selectActiveSquare, selectSquares } from "../board/boardSlice"
+import { selectCurrentPiece, canIMoveOrBeat, movePieceTo } from "../piece/pieceSlice"
 
 interface Props {
   square: ISquare
@@ -21,7 +21,7 @@ export const Square: FC<Props> = ({ square }) => {
   const [ , drop ] = useDrop(() => ({
     accept: 'piece',
     drop: () => {
-      dispatch(tryMovePieceTo(square.position))
+      dispatch(movePieceTo(square.position))
     },
     canDrop: () => {
       return canIMoveOrBeat(currentPiece, square.position, squares)

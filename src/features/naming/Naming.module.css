@@ -35,6 +35,11 @@
     left: var(--naming-size);
 }
 
+.NamingItems--top li,
+.NamingItems--right li {
+    transform: rotate(180deg);
+}
+
 .NamingItems--right {
     top: var(--naming-size);
     right: 0;
