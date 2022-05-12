@@ -86,7 +86,9 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
     case PieceType.PAWN:
       // If it's diagonals, we can only beat
       if (dx === 1 && dy === 1) {
-        if (!squares[y1][x1].piece) return false
+        if (!squares[y1][x1].piece
+          // We cannot beat friendly pieces
+          || squares[y1][x1].piece!.color === color) return false
       }
 
       // Can move 2 cells far only for the first move

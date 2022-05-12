@@ -1,6 +1,16 @@
 # Changelog
 
-## [0.0.5] - 2022-05-10
+## [0.0.] - 2022-05-10
+
+### Added
+
+- Possible moves highlighting
+
+### Fixed
+
+- Pawn now cannot beat friendly pieces
+
+## [0.0.4] - 2022-05-10
 
 ### Added
 
