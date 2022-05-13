@@ -81,7 +81,7 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
   if (y0 === y1) {
     // Check all vertical pieces in between start and end
     for (let i = Math.min(x0, x1) + 1; i < Math.max(x0, x1); i++) {
-      if (squares[y0][i].piece?.type) return true
+      if (!!squares[y0][i].piece?.type) return true
     }
   }
 
@@ -98,8 +98,7 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
     // Check north-west or south-east
     if ((x1 < x0 && y1 < y0) || (x1 > x0 && y1 > y0)) {
       for (let i = Math.min(y0, y1) + 1, j = Math.min(x0, x1) + 1; i < Math.max(y0, y1) && j < Math.max(x0, x1); i++, j++) {
-        const res = !!squares[i][j].piece?.type
-        if (res) return true
+        if (!!squares[i][j].piece?.type) return true
       }
     }
 
