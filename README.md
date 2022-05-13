@@ -10,7 +10,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Piece movement
 - ✅ Basic movement rules
 - ✅ Possible moves highlighting
-- Obstacles moving restrictions
+- ✅ Obstacles moving restrictions
 - King moving restrictions
 - Check/Mate conditions
 - Сastling
