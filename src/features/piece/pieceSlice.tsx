@@ -30,6 +30,8 @@ export interface Movement {
 
 export type PiecePosition = string
 
+const pieceHasDiffColor = (piece: IPiece, color: PieceColor): boolean => !!piece && piece.color !== color
+
 const pieceSlice = createSlice({
   name: "piece",
   initialState: {
@@ -55,8 +57,8 @@ export const movePieceFromTo = createAction<Movement>("piece/move-from-to")
  * Gets coords from position name
  * @param position
  */
-export const getCoordFromPosition = (position: PiecePosition): [rank: number, file: number] => {
-  const [letter, digit] = position
+export const getCoordFromPosition = (position: PiecePosition): [ rank: number, file: number ] => {
+  const [ letter, digit ] = position
   const rank = 8 - +digit
   const file = letter.toLowerCase().charCodeAt(0) - 97
 
@@ -103,13 +105,79 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
     }
 
     // Check south-west and north-east
-    if ((x1 < x0 && y1 > y0) || (x1 > x0) && (y1 < y0)) {
+    if ((x1 < x0 && y1 > y0) || (x1 > x0 && y1 < y0)) {
       for (let i = Math.max(y0, y1) - 1, j = Math.min(x0, x1) + 1; i > Math.min(y0, y1) && j < Math.max(x0, x1); i--, j++) {
         if (!!squares[i][j].piece?.type) return true
       }
     }
   }
 
+  return false
+}
+
+/**
+ * Checks if square can be beaten by pawn
+ * @param pawnPiece
+ * @param to
+ * @param color
+ */
+const canBeBeatenByPawn = (pawnPiece: IPiece, to: PiecePosition, color: PieceColor): boolean => {
+  const [ y, x ] = getCoordFromPosition(to)
+  const [ pawnY, pawnX ] = getCoordFromPosition(pawnPiece.position)
+
+  if (Math.abs(pawnX - x) !== 1) return false
+
+  return color === PieceColor.BLACK
+    ? pawnY === y + 1
+    : pawnY === y - 1
+}
+
+/**
+ * Checks if square can be beaten by king
+ * @param kingPiece
+ * @param to
+ */
+const canBeBeatenByKing = (kingPiece: IPiece, to: PiecePosition): boolean => {
+  const [ y, x ] = getCoordFromPosition(to)
+  const [ kingY, kingX ] = getCoordFromPosition(kingPiece.position)
+
+  if (Math.abs(kingX - x) > 1 || Math.abs(kingY - y) > 1) return false
+
+  return Math.abs(kingX - x) <= 1 && Math.abs(kingY - y) <= 1
+}
+
+/**
+ * Checks if square is protected (can be beaten by anyone)
+ * @param to
+ * @param fromColor
+ * @param squares
+ */
+export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squares: ISquare[][]): boolean => {
+  // Traverse all squares
+  for (let i = 0; i < squares.length; i++) {
+    for (let j = 0; j < squares[0].length; j++) {
+      const piece = squares[i][j]?.piece
+      //  If square has piece
+      //  and piece's color is differs from the fromColor(our color)
+      if (pieceHasDiffColor(piece!, fromColor)) {
+        // Process king logic to prevent infinite recursion
+        if (piece!.type === PieceType.KING) {
+          if (canBeBeatenByKing(piece!, to)) return true
+          continue
+        }
+
+        //  and this piece can move to 'to' - square is protected
+        if (piece!.type !== PieceType.PAWN) {
+          if (canIMove(piece!, to, squares)) return true
+        }
+
+        // Process pawn logic
+        if (canBeBeatenByPawn(piece!, to, fromColor)) return true
+      }
+    }
+  }
+
+  // Otherwise, square is not protected
   return false
 }
 
@@ -123,7 +191,7 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
   const { type, color, position } = piece
   if (!position) return false
 
-  const [[y0, x0], [y1, x1]] = [getCoordFromPosition(position), getCoordFromPosition(to)]
+  const [ [ y0, x0 ], [ y1, x1 ] ] = [ getCoordFromPosition(position), getCoordFromPosition(to) ]
 
   const dy = Math.abs(y1 - y0)
   const dx = Math.abs(x1 - x0)
@@ -162,7 +230,6 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
       // Can do only L-type moves
       return (dy === 2 && dx === 1) ||
         (dy === 1 && dx === 2)
-
     case PieceType.BISHOP:
       // Can move only diagonally
       return dy === dx && !haveObstaclesBetween(y0, x0, y1, x1, squares)
@@ -175,6 +242,8 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
     case PieceType.KING:
       // Can move only 1 cell far
       if (dy > 1 || dx > 1) return false
+
+      if (isSquareProtected(to, color!, squares)) return false
 
       // Can move either diagonally or vertically
       return dy === dx
@@ -197,19 +266,19 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
 
 /**
  * Checks if can move or beat piece
- * @param current
+ * @param piece
  * @param to
  * @param squares
  */
-export const canIMoveOrBeat = (current: IPiece, to: PiecePosition, squares: ISquare[][]): boolean => {
-  const [y, x] = getCoordFromPosition(to)
+export const canIMoveOrBeat = (piece: IPiece, to: PiecePosition, squares: ISquare[][]): boolean => {
+  const [ y, x ] = getCoordFromPosition(to)
   const destinationSquare = squares[y][x]
   const destinationPiece = destinationSquare.piece
 
   // If current piece cannot move that way return
-  if (!canIMove(current, to, squares)) return false
+  if (!canIMove(piece, to, squares)) return false
 
-  return !destinationPiece || canIBeat(current, destinationPiece!)
+  return !destinationPiece || canIBeat(piece, destinationPiece!)
 }
 
 /**
@@ -221,8 +290,8 @@ export const canIBeat = (me: IPiece, destinationPiece: IPiece): boolean => {
   const opponentsColor = destinationPiece.color
   const { type, color, position } = me
 
-  const [, y] = getCoordFromPosition(position!)
-  const [, opponentsY] = getCoordFromPosition(destinationPiece.position!)
+  const [ , y ] = getCoordFromPosition(position!)
+  const [ , opponentsY ] = getCoordFromPosition(destinationPiece.position!)
 
   if (type === PieceType.PAWN) {
     return y !== opponentsY

@@ -156,11 +156,11 @@ export const initPieces =
       dispatch(placePiece({ position: "F1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
 
       // Place queens
-      dispatch(placePiece({ position: "E8", type: PieceType.QUEEN, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "D8", type: PieceType.QUEEN, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
 
       // Place kings
-      dispatch(placePiece({ position: "D8", type: PieceType.KING, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "E8", type: PieceType.KING, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
     }
 export const { initSquares } = boardSlice.actions
