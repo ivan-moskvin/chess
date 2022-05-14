@@ -12,6 +12,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Possible moves highlighting
 - ✅ Obstacles moving restrictions
 - ✅ King moving restrictions
+- ✅ Turns
 - Check/Mate conditions
 - Сastling
 - Pawn to queen transition

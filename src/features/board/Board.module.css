@@ -6,6 +6,12 @@
     justify-content: center;
 }
 
+.BoardItems {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+}
+
 .NamingWrapper {
     position: relative;
     opacity: 0.8;
@@ -17,7 +23,7 @@
     display: flex;
     flex-flow: column;
     flex-wrap: nowrap;
-    background-image: url('./wood.jpg');
+    background-image: url('../../images/wood.jpg');
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;

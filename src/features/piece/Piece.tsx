@@ -4,7 +4,8 @@ import { FC } from "react"
 import classNames from "classnames"
 import { useDrag } from "react-dnd"
 import { ISquare } from "../square/squareSlice"
-import { useAppDispatch } from "../../app/hooks"
+import { useAppDispatch, useAppSelector } from "../../app/hooks"
+import { selectTurn } from "../game/gameSlice"
 
 interface Props {
   square: ISquare;
@@ -12,22 +13,27 @@ interface Props {
 
 export const Piece: FC<Props> = ({ square }) => {
   const dispatch = useAppDispatch()
+  const turn = useAppSelector(selectTurn)
 
   const [collected, drag] = useDrag(() => ({
     type: "piece",
     end: () => {
       dispatch(dropPiece())
     },
-    collect: monitor => {
+    canDrag: () => {
+      return turn === square.piece!.color
+    },
+    collect: (monitor) => {
       if (monitor.isDragging()) {
         dispatch(dragPiece(square.piece!))
       }
       return {
         piece: square.piece,
+        canDrag: monitor.canDrag(),
         isDragging: monitor.isDragging(),
       }
     },
-  }), [square])
+  }), [square, turn])
 
 
   if (!square.piece) return null
@@ -35,6 +41,11 @@ export const Piece: FC<Props> = ({ square }) => {
 
   return <div
     ref={drag}
-    className={classNames([collected.isDragging ? styles.Dragging : "", styles.Piece, styles[`Piece${color}${type}`]])}
+    className={classNames({
+      [styles.Dragging]: collected.isDragging,
+      [styles.Piece]: true,
+      [styles[`Piece${color}${type}`]]: true
+    })
+    }
   />
 }
