@@ -1,7 +1,7 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import { ISquare } from "../square/squareSlice"
 import { AppThunk, RootState } from "../../app/store"
-import { processCheckMate } from "../board/boardSlice";
+import { haveObstaclesBetween, processCheckMate } from "../board/boardSlice";
 
 export enum PieceType {
   KING = "King",
@@ -73,52 +73,6 @@ export const getCoordFromPosition = (position: PiecePosition): [ rank: number, f
   ]
 }
 
-/**
- * Checks if there are obstacles between two squares
- * @param y0
- * @param x0
- * @param y1
- * @param x1
- * @param squares
- */
-export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: number, squares: ISquare[][]): boolean => {
-  if (y0 === y1 && x0 === x1) return false
-
-  // If it's horizontal move
-  if (y0 === y1) {
-    // Check all vertical pieces in between start and end
-    for (let i = Math.min(x0, x1) + 1; i < Math.max(x0, x1); i++) {
-      if (!!squares[y0][i].piece?.type) return true
-    }
-  }
-
-  // If it's vertical move
-  if (x0 === x1) {
-    // Check all vertical pieces in between start and end
-    for (let i = Math.min(y0, y1) + 1; i < Math.max(y0, y1); i++) {
-      if (!!squares[i][x0].piece?.type) return true
-    }
-  }
-
-  // If it's diagonal move
-  if (y1 !== y0 && x1 !== x0) {
-    // Check north-west or south-east
-    if ((x1 < x0 && y1 < y0) || (x1 > x0 && y1 > y0)) {
-      for (let i = Math.min(y0, y1) + 1, j = Math.min(x0, x1) + 1; i < Math.max(y0, y1) && j < Math.max(x0, x1); i++, j++) {
-        if (!!squares[i][j].piece?.type) return true
-      }
-    }
-
-    // Check south-west and north-east
-    if ((x1 < x0 && y1 > y0) || (x1 > x0 && y1 < y0)) {
-      for (let i = Math.max(y0, y1) - 1, j = Math.min(x0, x1) + 1; i > Math.min(y0, y1) && j < Math.max(x0, x1); i--, j++) {
-        if (!!squares[i][j].piece?.type) return true
-      }
-    }
-  }
-
-  return false
-}
 
 /**
  * Checks if square can be beaten by pawn

@@ -10,7 +10,7 @@
     display: flex;
     flex-flow: row;
     flex-wrap: nowrap;
-    align-items: start;
+    align-items: flex-start;
 }
 
 .NamingWrapper {
@@ -34,10 +34,10 @@
 
 .Squares {
     position: relative;
-    z-index: 1;
     display: flex;
     flex-flow: column;
     flex-wrap: nowrap;
     border: 1px solid #9b6633;
     box-shadow: 0 0 var(--shadow-coef) #7d512a;
+    z-index: 1;
 }
