@@ -9,6 +9,6 @@ export interface ISquare {
   color: SquareColor,
   piece?: IPiece,
   position: string,
-  coords: number[],
   active: boolean,
+  coords: [ y: number, x: number ]
 }

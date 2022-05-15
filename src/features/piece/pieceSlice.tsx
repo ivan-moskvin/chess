@@ -1,6 +1,7 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import { ISquare } from "../square/squareSlice"
 import { AppThunk, RootState } from "../../app/store"
+import { processCheckMate } from "../board/boardSlice";
 
 export enum PieceType {
   KING = "King",
@@ -18,8 +19,8 @@ export enum PieceColor {
 
 export interface IPiece {
   position: string,
-  type?: PieceType,
-  color?: PieceColor
+  type: PieceType,
+  color: PieceColor
 }
 
 export interface Movement {
@@ -37,7 +38,11 @@ const pieceSlice = createSlice({
   initialState: {
     current: {} as IPiece
   },
-  reducers: {},
+  reducers: {
+    setCurrent: (state, action) => {
+      state.current = action.payload
+    }
+  },
   extraReducers: (builder => {
     builder.addCase(dragPiece, (state, action) => {
       state.current = action.payload
@@ -147,41 +152,6 @@ const canBeBeatenByKing = (kingPiece: IPiece, to: PiecePosition): boolean => {
 }
 
 /**
- * Checks if square is protected (can be beaten by anyone)
- * @param to
- * @param fromColor
- * @param squares
- */
-export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squares: ISquare[][]): boolean => {
-  // Traverse all squares
-  for (let i = 0; i < squares.length; i++) {
-    for (let j = 0; j < squares[0].length; j++) {
-      const piece = squares[i][j]?.piece
-      //  If square has piece
-      //  and piece's color is differs from the fromColor(our color)
-      if (pieceHasDiffColor(piece!, fromColor)) {
-        // Process king logic to prevent infinite recursion
-        if (piece!.type === PieceType.KING) {
-          if (canBeBeatenByKing(piece!, to)) return true
-          continue
-        }
-
-        //  and this piece can move to 'to' - square is protected
-        if (piece!.type !== PieceType.PAWN) {
-          if (canIMove(piece!, to, squares)) return true
-        }
-
-        // Process pawn logic
-        if (canBeBeatenByPawn(piece!, to, fromColor)) return true
-      }
-    }
-  }
-
-  // Otherwise, square is not protected
-  return false
-}
-
-/**
  * Checks can I move that piece
  * @param piece
  * @param to
@@ -255,13 +225,72 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
 }
 
 /**
+ * Checks if square can be beaten by anyone
+ * @param square
+ * @param to
+ * @param fromColor
+ * @param squares
+ */
+export const isSquareCanBeBeaten = (square: ISquare, to: PiecePosition, fromColor: PieceColor, squares: ISquare[][]) => {
+  return !square?.piece && isSquareProtected(to, fromColor, squares)
+}
+
+/**
+ * Checks if square is protected
+ * @param to
+ * @param fromColor
+ * @param squares
+ * @param debug
+ */
+export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squares: ISquare[][], debug?: boolean): boolean => {
+  // Traverse all squares
+  for (let i = 0; i < squares.length; i++) {
+    for (let j = 0; j < squares[0].length; j++) {
+      const piece = squares[i][j]?.piece
+      //  If square has piece
+      //  and piece's color is differs from the fromColor(our color)
+      if (pieceHasDiffColor(piece!, fromColor)) {
+        // Process king logic to prevent infinite recursion
+        if (piece!.type === PieceType.KING) {
+          if (canBeBeatenByKing(piece!, to)) {
+            if (debug) debugger
+            return true
+          }
+          continue
+        }
+
+        //  and this piece can move to 'to' - square is protected
+        if (piece!.type !== PieceType.PAWN) {
+          if (canIMove(piece!, to, squares)) {
+            if (debug) debugger
+            return true
+          }
+        }
+
+        // Process pawn logic
+        if (canBeBeatenByPawn(piece!, to, fromColor)) {
+          if (debug) debugger
+          return true
+        }
+      }
+    }
+  }
+
+  // Otherwise, square is not protected
+  return false
+}
+
+/**
  * Moving piece to square
  * @param to
  */
 export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState) => {
-  const { piece: { current } } = getState()
+  const getCurrent = () => getState().piece.current
+  const current = getCurrent()
 
-  dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: { ...current, position: to } }))
+  dispatch(pieceSlice.actions.setCurrent({ ...current, position: to }))
+  dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent() }))
+  dispatch(processCheckMate())
 }
 
 /**

@@ -7,17 +7,121 @@ import {
   dropPiece,
   getCoordFromPosition,
   IPiece,
+  isSquareCanBeBeaten,
   movePieceFromTo,
   PieceColor,
   PiecePosition,
   PieceType,
   placePiece
 } from "../piece/pieceSlice"
+import { checkTo, clearCheck, mateTo } from "../game/gameSlice";
 
 interface Board {
   squares: ISquare[][],
   activeSquare: string,
   possibleMovements: { [key: PiecePosition]: null },
+}
+
+/**
+ * Find square by position
+ * @param position
+ * @param squares
+ */
+const findSquare = (position: PiecePosition, squares: ISquare[][]): ISquare => {
+  for (let i = 0; i < squares.length; i++) {
+    for (let j = 0; j < squares[0].length; j++) {
+      if (squares[i][j].position === position) return squares[i][j]
+    }
+  }
+
+  return {} as ISquare
+}
+
+/**
+ * Finds king by color
+ * @param color
+ * @param squares
+ */
+const findKingsSquareByColor = (color: PieceColor, squares: ISquare[][]): ISquare => {
+  for (let i = 0; i < squares.length; i++) {
+    for (let j = 0; j < squares[0].length; j++) {
+      if (squares[i][j].piece?.type === PieceType.KING
+        && squares[i][j].piece?.color === color
+      ) {
+        return squares[i][j]
+      }
+    }
+  }
+
+  return {} as ISquare
+}
+
+/**
+ * Checks if king has place to run
+ * @param kingSquare
+ * @param squares
+ */
+const kingCanEscape = (kingSquare: ISquare, squares: ISquare[][]): boolean => {
+  const [ y, x ] = kingSquare.coords
+  const positions = [
+    [ y - 1, x - 1 ],
+    [ y - 1, x ],
+    [ y - 1, x + 1 ],
+    [ y, x - 1 ],
+    [ y, x + 1 ],
+    [ y + 1, x - 1 ],
+    [ y + 1, x ],
+    [ y + 1, x + 1 ],
+  ].filter(([ y, x ]) => !!squares[y] && squares[y][x])
+
+  return positions
+    .some(([ y, x ]) => {
+      return canIMoveOrBeat(kingSquare.piece!, squares[y][x].position, squares)
+    })
+}
+
+/**
+ * Processes check/mate situation
+ */
+export const processCheckMate = (): AppThunk => (dispatch, getState) => {
+  const { board: { squares }, piece: { current } } = getState()
+  const currentSquare = findSquare(current.position, squares)
+
+  const opponentsKing = findKingsSquareByColor(
+    current.color! === PieceColor.BLACK
+      ? PieceColor.WHITE
+      : PieceColor.BLACK,
+    squares
+  )
+
+  const opponentsColor = opponentsKing.piece!.color
+
+  if (isCheck()) {
+    dispatch(checkTo(opponentsColor))
+
+    if (isMate()) {
+      return dispatch(mateTo(opponentsColor))
+    }
+
+    return
+  }
+
+  return dispatch(clearCheck())
+
+  function isCheck(): boolean {
+    // If anyone threatening the king
+    return canIMoveOrBeat(current, opponentsKing.position, squares)
+  }
+
+  function isMate(): boolean {
+    return [
+      // No one can beat threatening piece
+      !isSquareCanBeBeaten(currentSquare, current.position, opponentsColor, squares),
+      // King cannot escape (every cell can be beaten + castle cell)
+      !kingCanEscape(opponentsKing, squares)
+      // No one can body block king from threat
+    ].every(condition => condition)
+  }
 }
 
 const boardSlice = createSlice({
@@ -77,7 +181,7 @@ const boardSlice = createSlice({
       .addCase(dragPiece, (state, action: PayloadAction<IPiece>) => {
         const { squares } = state
         const { position } = action.payload
-        const square = findSquare(position)
+        const square = findSquare(position, squares)
 
         // If piece is no longer at the start position
         if (!square.piece) return
@@ -91,21 +195,13 @@ const boardSlice = createSlice({
             }
           }
         }
-
-        function findSquare(position: PiecePosition): ISquare {
-          for (let i = 0; i < state.squares.length; i++) {
-            for (let j = 0; j < state.squares[0].length; j++) {
-              if (state.squares[i][j].position === position) return state.squares[i][j]
-            }
-          }
-
-          return {} as ISquare
-        }
       })
+    // Clear active square and possible movements
     builder.addCase(dropPiece, (state) => {
       state.activeSquare = ""
       state.possibleMovements = {}
     })
+    // Make move
     builder.addCase(movePieceFromTo, (state, action) => {
       const { from, to, piece } = action.payload
 
