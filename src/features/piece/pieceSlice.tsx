@@ -79,7 +79,7 @@ export const getCoordFromPosition = (position: PiecePosition): [ rank: number, f
  * @param x
  */
 export const getPositionFromCoords = (y: number, x: number): PiecePosition => {
-  return `${String.fromCharCode(97 + x).toUpperCase()}${8 - y}`
+  return `${ String.fromCharCode(97 + x).toUpperCase() }${ 8 - y }`
 }
 
 
@@ -244,6 +244,27 @@ export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squa
 }
 
 /**
+ * Process pawn to queen transition
+ */
+const processPawnToQueen = (): AppThunk => (dispatch, getState) => {
+  const { piece: { current: { type, color, position } } } = getState()
+  const [ rank ] = getCoordFromPosition(position)
+
+  // Only for pawns
+  if (type !== PieceType.PAWN) return
+
+  // Cast white pawn to queen
+  if (color === PieceColor.WHITE && rank === 8) {
+    dispatch(placePiece({ position, type: PieceType.QUEEN, color }))
+  }
+
+  // Cast black pawn to queen
+  if (color === PieceColor.BLACK && rank === 1) {
+    dispatch(placePiece({ position, type: PieceType.QUEEN, color }))
+  }
+}
+
+/**
  * Moving piece to square
  * @param to
  */
@@ -254,6 +275,7 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
   dispatch(pieceSlice.actions.setCurrent({ ...current, position: to }))
   dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent() }))
   dispatch(processGameState())
+  dispatch(processPawnToQueen())
 }
 
 /**

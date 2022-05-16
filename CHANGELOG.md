@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.10] - 2022-05-16
+
+### Added
+
+- Pawn to queen transition
+
 ## [0.0.9] - 2022-05-16
 
 ### Added

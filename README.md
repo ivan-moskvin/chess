@@ -13,13 +13,14 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Obstacles moving restrictions
 - ✅ King moving restrictions
 - ✅ Turns
-- ✅️ Check/Mate conditions
-- ✅️ Draw conditions
+- ✅ Check/Mate conditions
+- ✅ Draw conditions
+- ✅ Pawn to queen transition
 - ☑️ Castling
-- ☑️ Pawn to queen transition
 - ☑️ Tests
     - ☑️ Smoke
     - ☑️ Actions
+- ☑️ Analytics
 - ☑️ i8n (translate and auto detect)
 - ☑️ Notification system (notifies, check/mate overlay)
 - ☑️ Time travel
