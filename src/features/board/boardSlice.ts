@@ -14,7 +14,7 @@ import {
   PieceType,
   placePiece
 } from "../piece/pieceSlice"
-import { checkTo, clearCheck, mateTo } from "../game/gameSlice";
+import { checkTo, clearCheck, mateTo } from "../game/gameSlice"
 
 interface Board {
   squares: ISquare[][],
@@ -73,20 +73,20 @@ const findKingsSquareByColor = (color: PieceColor, squares: ISquare[][]): ISquar
  * @param squares
  */
 const kingCanEscape = (kingSquare: ISquare, squares: ISquare[][]): boolean => {
-  const [ y, x ] = kingSquare.coords
+  const [y, x] = kingSquare.coords
   const positions = [
-    [ y - 1, x - 1 ],
-    [ y - 1, x ],
-    [ y - 1, x + 1 ],
-    [ y, x - 1 ],
-    [ y, x + 1 ],
-    [ y + 1, x - 1 ],
-    [ y + 1, x ],
-    [ y + 1, x + 1 ],
-  ].filter(([ y, x ]) => !!squares[y] && squares[y][x])
+    [y - 1, x - 1],
+    [y - 1, x],
+    [y - 1, x + 1],
+    [y, x - 1],
+    [y, x + 1],
+    [y + 1, x - 1],
+    [y + 1, x],
+    [y + 1, x + 1],
+  ].filter(([y, x]) => !!squares[y] && squares[y][x])
 
   return positions
-    .some(([ y, x ]) => {
+    .some(([y, x]) => {
       return canIMoveOrBeat(kingSquare.piece!, squares[y][x].position, squares)
     })
 }
@@ -158,8 +158,8 @@ const getThreatDirection = (y0: number, x0: number, y1: number, x1: number): Thr
  */
 const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare): boolean => {
   // Someone can go to any cell between king and threat
-  const [ y1, x1 ] = getCoordFromPosition(kingSquare.position)
-  const [ y0, x0 ] = getCoordFromPosition(from.position)
+  const [y1, x1] = getCoordFromPosition(kingSquare.position)
+  const [y0, x0] = getCoordFromPosition(from.position)
 
 
   switch (getThreatDirection(y0, x0, y1, x1)) {
@@ -257,7 +257,7 @@ const boardSlice = createSlice({
           squares[i][j] = {
             ...squares[i][j],
             position: name,
-            coords: [ i, j ]
+            coords: [i, j]
           }
         }
       }
@@ -267,7 +267,7 @@ const boardSlice = createSlice({
   }, extraReducers: (builder) => {
     builder.addCase(placePiece, (state, action) => {
       const { position, type, color } = action.payload
-      const [ rank, file ] = getCoordFromPosition(position)
+      const [rank, file] = getCoordFromPosition(position)
 
       state.squares[rank][file].piece = {
         type,
@@ -303,8 +303,8 @@ const boardSlice = createSlice({
     builder.addCase(movePieceFromTo, (state, action) => {
       const { from, to, piece } = action.payload
 
-      const [ rankFrom, fileFrom ] = getCoordFromPosition(from)
-      const [ rankTo, fileTo ] = getCoordFromPosition(to)
+      const [rankFrom, fileFrom] = getCoordFromPosition(from)
+      const [rankTo, fileTo] = getCoordFromPosition(to)
 
       delete state.squares[rankFrom][fileFrom].piece
       state.squares[rankTo][fileTo].piece = piece
@@ -322,8 +322,6 @@ export const initPieces =
           type: PieceType.PAWN,
           color: PieceColor.WHITE
         }))
-      }
-      for (let i = 0, charCode = 97; i < 8; i++, charCode++) {
         dispatch(placePiece({
           position: String.fromCharCode(charCode) + "7",
           type: PieceType.PAWN,
