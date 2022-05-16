@@ -15,7 +15,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Turns
 - ✅️ Check/Mate conditions
 - ✅️ Draw conditions
-- ☑️ Сastling
+- ☑️ Castling
 - ☑️ Pawn to queen transition
 - ☑️ Tests
     - ☑️ Smoke
@@ -29,10 +29,11 @@ https://ivan-moskvin.github.io/chess/
 
 ## Ideas
 
+- O(n²) → O(n) obstacles search optimization
+- Pieces beaten / pieces list collections for allies search optimization
 - Beating animation
 - Clock
 - Hotseat multiplayer (rotate board)
-- Pieces beaten / pieces list collections
 
 ## Credits
 
