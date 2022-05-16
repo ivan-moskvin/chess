@@ -17,10 +17,10 @@ https://ivan-moskvin.github.io/chess/
 - ✅️ Draw conditions
 - ☑️ Сastling
 - ☑️ Pawn to queen transition
-- ☑️ Pieces beaten / pieces list collections
 - ☑️ Tests
     - ☑️ Smoke
     - ☑️ Actions
+- ☑️ i8n (translate and auto detect)
 - ☑️ Notification system (notifies, check/mate overlay)
 - ☑️ Time travel
 - ☑️ Turns logging
@@ -32,6 +32,7 @@ https://ivan-moskvin.github.io/chess/
 - Beating animation
 - Clock
 - Hotseat multiplayer (rotate board)
+- Pieces beaten / pieces list collections
 
 ## Credits
 
