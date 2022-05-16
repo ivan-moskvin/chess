@@ -13,9 +13,11 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Obstacles moving restrictions
 - ✅ King moving restrictions
 - ✅ Turns
-- ☑️ Check/Mate conditions
+- ✅️ Check/Mate conditions
+- ✅️ Draw conditions
 - ☑️ Сastling
 - ☑️ Pawn to queen transition
+- ☑️ Pieces beaten / pieces list collections
 - ☑️ Tests
     - ☑️ Smoke
     - ☑️ Actions

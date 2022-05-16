@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.9] - 2022-05-16
+
+### Added
+
+- Check, mate and draw condition checks
+
 ## [0.0.8] - 2022-05-14
 
 ### Added

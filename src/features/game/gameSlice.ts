@@ -6,6 +6,7 @@ interface GameState {
   turn: PieceColor,
   checkTo: PieceColor | null,
   mateTo: PieceColor | null,
+  draw: boolean,
 }
 
 const gameSlice = createSlice({
@@ -13,7 +14,8 @@ const gameSlice = createSlice({
   initialState: {
     turn: PieceColor.WHITE,
     checkTo: null,
-    mateTo: null
+    mateTo: null,
+    draw: false,
   } as GameState,
   reducers: {
     checkTo: (state, action: PayloadAction<PieceColor>) => {
@@ -25,6 +27,9 @@ const gameSlice = createSlice({
     },
     clearCheck: (state) => {
       state.checkTo = null
+    },
+    draw: (state) => {
+      state.draw = true
     }
   },
   extraReducers: builder => {
@@ -35,10 +40,11 @@ const gameSlice = createSlice({
   }
 })
 
-export const { checkTo, mateTo, clearCheck } = gameSlice.actions
+export const { checkTo, mateTo, clearCheck, draw } = gameSlice.actions
 
 export const selectTurn = (state: RootState) => state.game.turn
 export const selectCheck = (state: RootState) => state.game.checkTo
 export const selectMate = (state: RootState) => state.game.mateTo
+export const selectDraw = (state: RootState) => state.game.draw
 
 export default gameSlice.reducer

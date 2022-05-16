@@ -1,7 +1,7 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import { ISquare } from "../square/squareSlice"
 import { AppThunk, RootState } from "../../app/store"
-import { haveObstaclesBetween, processCheckMate } from "../board/boardSlice";
+import { haveObstaclesBetween, processGameState } from "../board/boardSlice"
 
 export enum PieceType {
   KING = "King",
@@ -71,6 +71,15 @@ export const getCoordFromPosition = (position: PiecePosition): [ rank: number, f
     rank,
     file
   ]
+}
+
+/**
+ * Gets position name from coordinates
+ * @param y
+ * @param x
+ */
+export const getPositionFromCoords = (y: number, x: number): PiecePosition => {
+  return `${String.fromCharCode(97 + x).toUpperCase()}${8 - y}`
 }
 
 
@@ -244,7 +253,7 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
 
   dispatch(pieceSlice.actions.setCurrent({ ...current, position: to }))
   dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent() }))
-  dispatch(processCheckMate())
+  dispatch(processGameState())
 }
 
 /**
