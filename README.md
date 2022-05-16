@@ -13,21 +13,23 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Obstacles moving restrictions
 - ✅ King moving restrictions
 - ✅ Turns
-- Check/Mate conditions
-- Сastling
-- Pawn to queen transition
-- Notification system (notifies, check/mate overlay)
-- Turns logging
-- Persistence
-- Tests
+- ☑️ Check/Mate conditions
+- ☑️ Сastling
+- ☑️ Pawn to queen transition
+- ☑️ Tests
+    - ☑️ Smoke
+    - ☑️ Actions
+- ☑️ Notification system (notifies, check/mate overlay)
+- ☑️ Time travel
+- ☑️ Turns logging
+- ☑️ Persistence
+- ☑️ Optimize graphics
 
 ## Ideas
 
 - Beating animation
-- Add time travel (reverse?)
 - Clock
 - Hotseat multiplayer (rotate board)
-- Optimize graphics
 
 ## Credits
 
