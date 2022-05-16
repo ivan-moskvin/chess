@@ -29,10 +29,11 @@ https://ivan-moskvin.github.io/chess/
 
 ## Ideas
 
+- O(n²) → O(n) obstacles search optimization
+- Pieces beaten / pieces list collections for allies search optimization
 - Beating animation
 - Clock
 - Hotseat multiplayer (rotate board)
-- Pieces beaten / pieces list collections
 
 ## Credits
 
