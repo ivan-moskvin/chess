@@ -22,6 +22,17 @@ interface Board {
   squares: ISquare[][],
   activeSquare: string,
   possibleMovements: { [key: PiecePosition]: null },
+
+  /**
+   * TODO: Castling
+   *
+   */
+  // Рокировка невозможна:
+  //   если король по ходу партии уже делал ходы (включая ход-рокировку);
+  //   если ладья походила, то с ней уже невозможна рокировка
+  // Рокировка временно невозможна:
+  //   если король под шахом. В результате рокировки пройдёт через битое поле или встанет под шах[2].
+  //   если между королём и ладьей, предназначенными для рокировки, находится другая фигура (своя или чужая)[3].
 }
 
 /**
@@ -306,6 +317,7 @@ const boardSlice = createSlice({
         type,
         color,
         position: position.toUpperCase(),
+        moved: false
       }
     })
     builder
@@ -340,6 +352,7 @@ const boardSlice = createSlice({
       const [ rankTo, fileTo ] = getCoordFromPosition(to)
 
       delete state.squares[rankFrom][fileFrom].piece
+      piece.moved = true
       state.squares[rankTo][fileTo].piece = piece
     })
   }

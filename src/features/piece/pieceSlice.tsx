@@ -20,7 +20,8 @@ export enum PieceColor {
 export interface IPiece {
   position: string,
   type: PieceType,
-  color: PieceColor
+  color: PieceColor,
+  moved?: boolean,
 }
 
 export interface Movement {
