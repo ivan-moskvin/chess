@@ -18,13 +18,13 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Pawn to queen transition
 - ✅ Time travel
 - ✅ Turns logging
+- ✅ i8n (translate and auto detect)
 - ☑️ Restrict moves that put king under threat
 - ☑️ Castling
 - ☑️ Tests
     - ☑️ Smoke
     - ☑️ Actions
 - ☑️ Analytics
-- ☑️ i8n (translate and auto detect)
 - ☑️ Notification system (notifies, check/mate overlay)
 - ☑️ Persistence
 - ☑️ Optimize graphics

@@ -1,8 +1,10 @@
-import React, {useEffect} from 'react';
-import {Board} from "./features/board/Board";
+import './i8n/i8n';
+import React, { useEffect } from 'react';
+import { Board } from "./features/board/Board";
 import styles from './App.module.css'
-import {useAppDispatch} from "./app/hooks";
-import {initSquares, initPieces} from "./features/board/boardSlice";
+import { useAppDispatch } from "./app/hooks";
+import { initPieces, initSquares } from "./features/board/boardSlice";
+
 function App() {
   const dispatch = useAppDispatch();
 
@@ -10,11 +12,11 @@ function App() {
     dispatch(initSquares())
     dispatch(initPieces())
 
-  }, [dispatch])
+  }, [ dispatch ])
 
   return (
-    <div className={styles.App}>
-      <Board />
+    <div className={ styles.App }>
+      <Board/>
     </div>
   );
 }
