@@ -4,7 +4,7 @@
   flex-flow: column;
   flex-wrap: nowrap;
   margin-left: 50px;
-  width: 200px;
+  width: 250px;
   padding: 0 20px;
   background-image: url('../../images/wood.jpg');
   background-repeat: no-repeat;
@@ -15,6 +15,7 @@
   z-index: 0;
 
 }
+
 .Info:before {
   content: '';
   position: absolute;
@@ -31,7 +32,7 @@
   position: relative;
   z-index: 1;
   color: #7d512a;
-  font-size: var(--naming-font-size);
-  line-height: var(--naming-font-size);
-  text-transform: uppercase;
+  font-size: 15px;
+  line-height: 15px;
+  /*text-transform: uppercase;*/
 }

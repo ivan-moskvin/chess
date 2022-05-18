@@ -2,6 +2,7 @@ import { createAction, createSlice } from "@reduxjs/toolkit"
 import { ISquare } from "../square/squareSlice"
 import { AppThunk, RootState } from "../../app/store"
 import { haveObstaclesBetween, processGameState } from "../board/boardSlice"
+import { historySnapshot, traverseInTime } from "../history/historySlice";
 
 export enum PieceType {
   KING = "King",
@@ -32,6 +33,30 @@ export interface Movement {
 
 export type PiecePosition = string
 
+/**
+ * Gets unicode piece symbol
+ * @param type
+ * @param color
+ */
+export const getPieceIcon = (type: PieceType, color: PieceColor): string => {
+  switch (type) {
+    case PieceType.PAWN:
+      return color === PieceColor.BLACK ? '\u265f' : '\u2659'
+    case PieceType.ROOK:
+      return color === PieceColor.BLACK ? '\u265c' : '\u2656'
+    case PieceType.KNIGHT:
+      return color === PieceColor.BLACK ? '\u265e' : '\u2658'
+    case PieceType.BISHOP:
+      return color === PieceColor.BLACK ? '\u265d' : '\u2657'
+    case PieceType.QUEEN:
+      return color === PieceColor.BLACK ? '\u265b' : '\u2655'
+    case PieceType.KING:
+      return color === PieceColor.BLACK ? '\u265a' : '\u2654'
+  }
+
+  return ''
+}
+
 const pieceHasDiffColor = (piece: IPiece, color: PieceColor): boolean => !!piece && piece.color !== color
 
 const pieceSlice = createSlice({
@@ -50,6 +75,9 @@ const pieceSlice = createSlice({
     })
     builder.addCase(dropPiece, (state) => {
       state.current = {} as IPiece
+    })
+    builder.addCase(traverseInTime, (state, action) => {
+      return action.payload.piece
     })
   })
 })
@@ -277,6 +305,7 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
   dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent() }))
   dispatch(processGameState())
   dispatch(processPawnToQueen())
+  dispatch(historySnapshot(`${ current.position } -> ${ to }`))
 }
 
 /**

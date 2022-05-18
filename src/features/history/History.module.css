@@ -1,0 +1,70 @@
+.History {
+  --item-size: 20px;
+}
+
+.heading {
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-weight: normal;
+}
+
+.list {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  margin-top: 0;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.item {
+  list-style-type: none;
+  line-height: 20px;
+  cursor: pointer;
+  padding-left: 20px;
+}
+
+.item::before {
+  position: absolute;
+  left: 0;
+  content: '\27a0';
+  font-weight: bold;
+  opacity: 0;
+  font-size: 20px;
+  transition: 0.3s opacity ease-in-out;
+}
+
+.item:hover::before {
+  opacity: 1;
+}
+
+.item:last-child {
+  cursor: inherit;
+}
+
+.item:last-child::before {
+  content: ''
+}
+
+.piece {
+  font-size: var(--item-size);
+  margin-right: 5px;
+}
+
+.move {
+  font-size: var(--item-size);
+  font-family: monospace;
+}
+
+.state {
+  margin-left: 5px;
+  text-transform: lowercase;
+}
+
+.checkState {
+  color: yellow;
+}
+
+.mateState {
+  color: red;
+}

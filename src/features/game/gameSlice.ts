@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { movePieceFromTo, PieceColor } from "../piece/pieceSlice"
 import { RootState } from "../../app/store"
+import { traverseInTime } from "../history/historySlice";
 
-interface GameState {
+export interface Game {
   turn: PieceColor,
   checkTo: PieceColor | null,
   mateTo: PieceColor | null,
@@ -16,7 +17,7 @@ const gameSlice = createSlice({
     checkTo: null,
     mateTo: null,
     draw: false,
-  } as GameState,
+  } as Game,
   reducers: {
     checkTo: (state, action: PayloadAction<PieceColor>) => {
       state.checkTo = action.payload
@@ -36,6 +37,9 @@ const gameSlice = createSlice({
     // Toggle turn when move is done
     builder.addCase(movePieceFromTo, (state) => {
       state.turn = state.turn === PieceColor.BLACK ? PieceColor.WHITE : PieceColor.BLACK
+    })
+    builder.addCase(traverseInTime, (state, action) => {
+      return action.payload.game
     })
   }
 })

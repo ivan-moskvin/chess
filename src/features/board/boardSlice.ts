@@ -17,11 +17,16 @@ import {
   placePiece
 } from "../piece/pieceSlice"
 import { checkTo, clearCheck, draw, mateTo } from "../game/gameSlice"
+import { traverseInTime } from "../history/historySlice";
 
-interface Board {
+export interface Board {
   squares: ISquare[][],
   activeSquare: string,
   possibleMovements: { [key: PiecePosition]: null },
+
+  /**
+   * TODO: Не давать ходить, если подставляемся под шах или мат
+   */
 
   /**
    * TODO: Castling
@@ -346,14 +351,24 @@ const boardSlice = createSlice({
     })
     // Make move
     builder.addCase(movePieceFromTo, (state, action) => {
+      // Clear active square and possible movements
+      state.possibleMovements = {}
+      state.activeSquare = ""
+
       const { from, to, piece } = action.payload
 
       const [ rankFrom, fileFrom ] = getCoordFromPosition(from)
       const [ rankTo, fileTo ] = getCoordFromPosition(to)
 
       delete state.squares[rankFrom][fileFrom].piece
-      piece.moved = true
-      state.squares[rankTo][fileTo].piece = piece
+
+      state.squares[rankTo][fileTo].piece = {
+        ...piece,
+        moved: true
+      }
+    })
+    builder.addCase(traverseInTime, (state, action) => {
+      return action.payload.board
     })
   }
 })

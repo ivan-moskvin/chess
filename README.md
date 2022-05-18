@@ -16,6 +16,9 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Check/Mate conditions
 - ✅ Draw conditions
 - ✅ Pawn to queen transition
+- ✅ Time travel
+- ✅ Turns logging
+- ☑️ Restrict moves that put king under threat
 - ☑️ Castling
 - ☑️ Tests
     - ☑️ Smoke
@@ -23,8 +26,6 @@ https://ivan-moskvin.github.io/chess/
 - ☑️ Analytics
 - ☑️ i8n (translate and auto detect)
 - ☑️ Notification system (notifies, check/mate overlay)
-- ☑️ Time travel
-- ☑️ Turns logging
 - ☑️ Persistence
 - ☑️ Optimize graphics
 
