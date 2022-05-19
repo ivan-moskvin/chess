@@ -34,8 +34,6 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
 
   const opponentsColor = opponentsKing.piece!.color
 
-  if (isDraw()) return dispatch(draw())
-
   if (isCheck()) {
     dispatch(checkTo(opponentsColor))
 
@@ -45,6 +43,8 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
 
     return
   }
+
+  if (isDraw()) return dispatch(draw())
 
   return dispatch(clearCheck())
 

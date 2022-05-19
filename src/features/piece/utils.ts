@@ -94,6 +94,9 @@ const canBeBeatenByKing = (kingPiece: IPiece, to: PiecePosition): boolean => {
 export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][]): boolean => {
   const { type, color, position } = piece
   if (!position) return false
+
+  // You cannot move to your own position.
+  // This logic is required to exclude current square from protected, so king can beat you
   if (piece.position === to) return false
 
   const [ [ y0, x0 ], [ y1, x1 ] ] = [ getCoordFromPosition(position), getCoordFromPosition(to) ]
