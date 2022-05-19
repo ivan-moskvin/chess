@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.0.13] - 2022-05-19
+
+### Added
+
+- Draw state indicator
+- Impossibility to drag pieces when game is over
+
+### Fixed
+
+- Movement condition check
+
 ## [0.0.12] - 2022-05-18
 
 ### Added

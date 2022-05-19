@@ -1,10 +1,12 @@
 import { FC } from "react"
-import { HistoryItem as HistoryItemType, traverseToMove } from "./historySlice"
+import { traverseToMove } from "./historySlice"
 import styles from "./History.module.css"
-import { getPieceIcon, PieceColor, PieceType } from "../piece/pieceSlice"
+import { PieceColor, PieceType } from "../piece/pieceSlice"
 import { useAppDispatch } from "../../app/hooks"
 import classNames from "classnames"
 import { useTranslation } from "react-i18next"
+import { HistoryItem as HistoryItemType } from "./types"
+import { getPieceIcon } from "../piece/utils"
 
 type HistroyItemProps = {
   historyItem: HistoryItemType
@@ -19,7 +21,8 @@ export const HistoryItem: FC<HistroyItemProps> = ({ historyItem }) => {
     name,
     game: {
       checkTo,
-      mateTo
+      mateTo,
+      draw,
     },
     piece: {
       current: {
@@ -39,6 +42,8 @@ export const HistoryItem: FC<HistroyItemProps> = ({ historyItem }) => {
             className={classNames([ styles.checkState, styles.state ])}>{t("check")}({getGameStateIndicator(checkTo)})</span>}
         {mateTo && <span
             className={classNames([ styles.mateState, styles.state ])}>{t("mate")}({getGameStateIndicator(mateTo)})</span>}
+        {draw && <span
+            className={classNames([ styles.drawState, styles.state ])}>{t("draw")}({getGameStateIndicator(draw)})</span>}
       </div>
     </li>
   )

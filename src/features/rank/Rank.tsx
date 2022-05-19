@@ -1,7 +1,7 @@
-import { ISquare } from "../square/squareSlice";
-import { Square } from "../square/Square";
-import { FC } from "react";
-import styles from './Rank.module.css';
+import { Square } from "../square/Square"
+import { FC } from "react"
+import styles from "./Rank.module.css"
+import { ISquare } from "../square/types"
 
 interface Props {
   rank: ISquare[]

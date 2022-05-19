@@ -1,15 +1,7 @@
 import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { Board } from "../board/boardSlice"
-import { Game } from "../game/gameSlice"
 import { AppThunk, RootState } from "../../app/store"
-import { IPiece, PiecePosition } from "../piece/pieceSlice"
-
-export type HistoryItem = {
-  name: string,
-  board: Board,
-  game: Game,
-  piece: { current: IPiece }
-}
+import { PiecePosition } from "../piece/types"
+import { HistoryItem } from "./types"
 
 export const getHistoryItemName = (position: PiecePosition, to: PiecePosition): string => {
   return `${position} \u21e8 ${to}`
