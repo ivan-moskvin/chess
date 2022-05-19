@@ -17,6 +17,7 @@ export const findSquare = (position: PiecePosition, squares: ISquare[][]): ISqua
 
   return {} as ISquare
 }
+
 /**
  * Finds king by color
  * @param color
@@ -35,6 +36,7 @@ export const findKingsSquareByColor = (color: PieceColor, squares: ISquare[][]):
 
   return {} as ISquare
 }
+
 /**
  * Checks if king has place to run
  * @param kingSquare
@@ -58,6 +60,7 @@ export const kingCanEscape = (kingSquare: ISquare, squares: ISquare[][]): boolea
       return canIMoveOrBeat(kingSquare.piece!, squares[y][x].position, squares)
     })
 }
+
 /**
  * Checks if there are obstacles between two squares
  * @param y0
@@ -65,14 +68,16 @@ export const kingCanEscape = (kingSquare: ISquare, squares: ISquare[][]): boolea
  * @param y1
  * @param x1
  * @param squares
+ * @param ignoringPiecePosition
  */
-export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: number, squares: ISquare[][]): boolean => {
+export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: number, squares: ISquare[][], ignoringPiecePosition?: PiecePosition): boolean => {
   if (y0 === y1 && x0 === x1) return false
 
   // If it's horizontal move
   if (y0 === y1) {
     // Check all horizontal pieces in between start and end
     for (let i = Math.min(x0, x1) + 1; i < Math.max(x0, x1); i++) {
+      if (squares[y0][i]?.piece?.position === ignoringPiecePosition) continue
       if (!!squares[y0][i]?.piece?.type) return true
     }
   }
@@ -81,6 +86,7 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
   if (x0 === x1) {
     // Check all vertical pieces in between start and end
     for (let i = Math.min(y0, y1) + 1; i < Math.max(y0, y1); i++) {
+      if (squares[i][x0]?.piece?.position === ignoringPiecePosition) continue
       if (!!squares[i][x0]?.piece?.type) return true
     }
   }
@@ -90,6 +96,7 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
     // Check north-west or south-east
     if ((x1 < x0 && y1 < y0) || (x1 > x0 && y1 > y0)) {
       for (let i = Math.min(y0, y1) + 1, j = Math.min(x0, x1) + 1; i < Math.max(y0, y1) && j < Math.max(x0, x1); i++, j++) {
+        if (squares[i][j]?.piece?.position === ignoringPiecePosition) continue
         if (!!squares[i][j]?.piece?.type) return true
       }
     }
@@ -97,6 +104,7 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
     // Check south-west and north-east
     if ((x1 < x0 && y1 > y0) || (x1 > x0 && y1 < y0)) {
       for (let i = Math.max(y0, y1) - 1, j = Math.min(x0, x1) + 1; i > Math.min(y0, y1) && j < Math.max(x0, x1); i--, j++) {
+        if (squares[i][j]?.piece?.position === ignoringPiecePosition) continue
         if (!!squares[i][j]?.piece?.type) return true
       }
     }
@@ -123,6 +131,39 @@ export const getAlliedPieces = (allyColor: PieceColor, squares: ISquare[][]): IP
 
   return alliedPieces
 }
+
+/**
+ * Gets opponent's pieces
+ * @param allyColor
+ * @param squares
+ */
+export const getOpponentsPieces = (allyColor: PieceColor, squares: ISquare[][]): IPiece[] => {
+  const opponentsPieces = []
+
+  // Get allied pieces
+  for (let i = 0; i < squares.length; i++) {
+    for (let j = 0; j < squares[0].length; j++) {
+      if (!!squares[i][j].piece && squares[i][j].piece?.color !== allyColor) {
+        opponentsPieces.push(squares[i][j].piece!)
+      }
+    }
+  }
+
+  return opponentsPieces
+}
+
+/**
+ * Checks if allied kind is disposing to threat by leaving position
+ */
+export const disposingKingToThreat = (protectingPosition: PiecePosition, color: PieceColor, squares: ISquare[][]): boolean => {
+  const opponentsPieces = getOpponentsPieces(color, squares)
+  const alliedKingsSquare = findKingsSquareByColor(color, squares)
+
+  return opponentsPieces.some((opponentsPiece) => {
+    return canIMoveOrBeat(opponentsPiece, alliedKingsSquare.position, squares, protectingPosition)
+  })
+}
+
 /**
  * Checks if someone can protect king
  */

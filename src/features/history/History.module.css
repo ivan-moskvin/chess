@@ -1,5 +1,6 @@
 .History {
   --item-size: 20px;
+  --item-height: 24px;
 }
 
 .heading {
@@ -22,7 +23,7 @@
 
 .item {
   display: flex;
-  height: 25px;
+  height: var(--item-height);
   padding: 5px 10px;
   align-items: center;
   list-style-type: none;
@@ -46,17 +47,20 @@
 }
 
 .piece {
-  height: 25px;
+  height: var(--item-height);
   margin-right: 5px;
   font-size: 40px;
 }
 
 .move {
+  display: flex;
+  align-items: center;
   font-size: var(--item-size);
   font-family: monospace;
 }
 
 .state {
+  height: var(--item-height);
   margin-left: 5px;
   text-transform: lowercase;
 }

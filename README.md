@@ -19,7 +19,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Time travel
 - ✅ Turns logging
 - ✅ i18n (translate and auto detect)
-- ☑️ Restrict moves that put king under threat
+- ✅ Restrict moves that put king under threat
 - ☑️ Castling
 - ☑️ Tests
     - ☑️ Smoke

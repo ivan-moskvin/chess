@@ -1,7 +1,7 @@
 import { PieceColor, PieceType } from "./pieceSlice"
 import { IPiece, PiecePosition } from "./types"
 import { ISquare } from "../square/types"
-import { haveObstaclesBetween } from "../board/utils"
+import { disposingKingToThreat, findSquare, haveObstaclesBetween } from "../board/utils"
 
 /**
  * Gets unicode piece symbol
@@ -90,10 +90,12 @@ const canBeBeatenByKing = (kingPiece: IPiece, to: PiecePosition): boolean => {
  * @param piece
  * @param to
  * @param squares
+ * @param ignoringPiecePosition
  */
-export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][]): boolean => {
+export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][], ignoringPiecePosition?: PiecePosition): boolean => {
   const { type, color, position } = piece
   if (!position) return false
+  if (!ignoringPiecePosition && disposingKingToThreat(position, color, squares)) return false
 
   // You cannot move to your own position.
   // This logic is required to exclude current square from protected, so king can beat you
@@ -133,17 +135,17 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][])
       return color === PieceColor.BLACK ? y1 >= y0 : y0 >= y1
     case PieceType.ROOK:
       // Cannot move diagonally
-      return !(dx > 0 && dy > 0) && !haveObstaclesBetween(y0, x0, y1, x1, squares)
+      return !(dx > 0 && dy > 0) && !haveObstaclesBetween(y0, x0, y1, x1, squares, ignoringPiecePosition)
     case PieceType.KNIGHT:
       // Can do only L-type moves
       return (dy === 2 && dx === 1) ||
         (dy === 1 && dx === 2)
     case PieceType.BISHOP:
       // Can move only diagonally
-      return dy === dx && !haveObstaclesBetween(y0, x0, y1, x1, squares)
+      return dy === dx && !haveObstaclesBetween(y0, x0, y1, x1, squares, ignoringPiecePosition)
     case PieceType.QUEEN:
       // Can move either diagonally or vertically
-      return !haveObstaclesBetween(y0, x0, y1, x1, squares)
+      return !haveObstaclesBetween(y0, x0, y1, x1, squares, ignoringPiecePosition)
         && (dy === dx
           || (dy === 0 && dx > 0)
           || (dx === 0 && dy > 0))
@@ -176,14 +178,14 @@ export const isSquareCanBeBeaten = (square: ISquare, to: PiecePosition, fromColo
  * @param piece
  * @param to
  * @param squares
+ * @param ignoringPiecePosition
  */
-export const canIMoveOrBeat = (piece: IPiece, to: PiecePosition, squares: ISquare[][]): boolean => {
-  const [ y, x ] = getCoordFromPosition(to)
-  const destinationSquare = squares[y][x]
+export const canIMoveOrBeat = (piece: IPiece, to: PiecePosition, squares: ISquare[][], ignoringPiecePosition?: PiecePosition): boolean => {
+  const destinationSquare = findSquare(to, squares)
   const destinationPiece = destinationSquare.piece
 
   // If current piece cannot move that way return
-  if (!canIMove(piece, to, squares)) return false
+  if (!canIMove(piece, to, squares, ignoringPiecePosition)) return false
 
   return !destinationPiece || canIBeat(piece, destinationPiece!)
 }

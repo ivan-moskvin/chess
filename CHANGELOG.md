@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.14] - 2022-05-19
+
+### Added
+
+- Moves restriction that put king under threat
+
 ## [0.0.13] - 2022-05-19
 
 ### Added
