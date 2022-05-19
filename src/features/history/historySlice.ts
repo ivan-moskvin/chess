@@ -1,8 +1,8 @@
-import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Board } from "../board/boardSlice";
-import { Game } from "../game/gameSlice";
-import { AppThunk, RootState } from "../../app/store";
-import { IPiece } from "../piece/pieceSlice";
+import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { Board } from "../board/boardSlice"
+import { Game } from "../game/gameSlice"
+import { AppThunk, RootState } from "../../app/store"
+import { IPiece, PiecePosition } from "../piece/pieceSlice"
 
 export type HistoryItem = {
   name: string,
@@ -11,8 +11,12 @@ export type HistoryItem = {
   piece: { current: IPiece }
 }
 
+export const getHistoryItemName = (position: PiecePosition, to: PiecePosition): string => {
+  return `${position} \u21e8 ${to}`
+}
+
 const historySlice = createSlice({
-  name: 'history',
+  name: "history",
   initialState: [] as HistoryItem[],
   reducers: {
     push: (state, action: PayloadAction<HistoryItem>) => {
@@ -50,6 +54,6 @@ export const traverseToMove = (to: string): AppThunk => (dispatch, getState) => 
   dispatch(traverseInTime(snapshot))
 }
 
-export const traverseInTime = createAction<HistoryItem>('history/traverse')
+export const traverseInTime = createAction<HistoryItem>("history/traverse")
 
 export default historySlice.reducer

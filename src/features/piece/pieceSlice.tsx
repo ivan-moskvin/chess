@@ -2,7 +2,7 @@ import { createAction, createSlice } from "@reduxjs/toolkit"
 import { ISquare } from "../square/squareSlice"
 import { AppThunk, RootState } from "../../app/store"
 import { haveObstaclesBetween, processGameState } from "../board/boardSlice"
-import { historySnapshot, traverseInTime } from "../history/historySlice";
+import { getHistoryItemName, historySnapshot, traverseInTime } from "../history/historySlice"
 
 export enum PieceType {
   KING = "King",
@@ -41,20 +41,20 @@ export type PiecePosition = string
 export const getPieceIcon = (type: PieceType, color: PieceColor): string => {
   switch (type) {
     case PieceType.PAWN:
-      return color === PieceColor.BLACK ? '\u265f' : '\u2659'
+      return color === PieceColor.BLACK ? "\u265f" : "\u2659"
     case PieceType.ROOK:
-      return color === PieceColor.BLACK ? '\u265c' : '\u2656'
+      return color === PieceColor.BLACK ? "\u265c" : "\u2656"
     case PieceType.KNIGHT:
-      return color === PieceColor.BLACK ? '\u265e' : '\u2658'
+      return color === PieceColor.BLACK ? "\u265e" : "\u2658"
     case PieceType.BISHOP:
-      return color === PieceColor.BLACK ? '\u265d' : '\u2657'
+      return color === PieceColor.BLACK ? "\u265d" : "\u2657"
     case PieceType.QUEEN:
-      return color === PieceColor.BLACK ? '\u265b' : '\u2655'
+      return color === PieceColor.BLACK ? "\u265b" : "\u2655"
     case PieceType.KING:
-      return color === PieceColor.BLACK ? '\u265a' : '\u2654'
+      return color === PieceColor.BLACK ? "\u265a" : "\u2654"
   }
 
-  return ''
+  return ""
 }
 
 const pieceHasDiffColor = (piece: IPiece, color: PieceColor): boolean => !!piece && piece.color !== color
@@ -108,7 +108,7 @@ export const getCoordFromPosition = (position: PiecePosition): [ rank: number, f
  * @param x
  */
 export const getPositionFromCoords = (y: number, x: number): PiecePosition => {
-  return `${ String.fromCharCode(97 + x).toUpperCase() }${ 8 - y }`
+  return `${String.fromCharCode(97 + x).toUpperCase()}${8 - y}`
 }
 
 
@@ -305,7 +305,7 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
   dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent() }))
   dispatch(processGameState())
   dispatch(processPawnToQueen())
-  dispatch(historySnapshot(`${ current.position } -> ${ to }`))
+  dispatch(historySnapshot(getHistoryItemName(current.position, to)))
 }
 
 /**
