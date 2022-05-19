@@ -1,6 +1,6 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next"
+import { initReactI18next } from "react-i18next"
+import LanguageDetector from "i18next-browser-languagedetector"
 
 const resources = {
   ru: {
@@ -11,7 +11,7 @@ const resources = {
       "Moves (click to traverse)": "Ходы (нажмите, чтобы вернуться)",
       "check": "шах",
       "mate": "мат",
-      "draw": "ничья"
+      "draw": "Ничья"
     }
   },
   en: {
@@ -25,7 +25,7 @@ const resources = {
       "draw": "draw"
     }
   }
-};
+}
 
 i18n
   .use(LanguageDetector)
@@ -35,4 +35,4 @@ i18n
     interpolation: {
       escapeValue: false
     }
-  });
+  })
