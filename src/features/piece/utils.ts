@@ -1,7 +1,7 @@
 import { PieceColor, PieceType } from "./pieceSlice"
 import { IPiece, PiecePosition } from "./types"
 import { ISquare } from "../square/types"
-import { disposingKingToThreat, findSquare, haveObstaclesBetween } from "../board/utils"
+import { disposingKingToThreat, findSquare, getAlliedPieces, haveObstaclesBetween } from "../board/utils"
 
 /**
  * Gets unicode piece symbol
@@ -246,4 +246,47 @@ export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squa
 
   // Otherwise, square is not protected
   return false
+}
+
+/**
+ * Checks if king is ready for castle
+ * @param king
+ */
+export const kingReadyForCastle = (king: IPiece): boolean => {
+  if (king.type !== PieceType.KING) return false
+  return !king.moved
+}
+
+/**
+ * Checks if rook ready for castle
+ * @param rook
+ * @param squares
+ */
+export const rookReadyForCastle = (rook: IPiece, squares: ISquare[][]): boolean => {
+  const [ rank, file ] = getCoordFromPosition(rook.position)
+
+  // Check left rook
+  if (file === 1) {
+    for (let i = 1; i <= 3; i++) {
+      if (!!squares[rank][i]?.piece) return false
+    }
+
+    return true
+  }
+
+  // Check right rook
+  return !!squares[rank][6]?.piece && !!squares[rank][5]?.piece
+}
+
+/**
+ * Gets allied rooks
+ * @param piece
+ * @param squares
+ */
+export const getAlliedRooksUnmoved = (piece: IPiece, squares: ISquare[][]): IPiece[] => {
+  const { color } = piece
+
+  return getAlliedPieces(color, squares)
+    .filter((piece) => piece.type === PieceType.ROOK)
+    .filter((rook) => !rook.moved)
 }
