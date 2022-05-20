@@ -264,20 +264,20 @@ export const initPieces =
       dispatch(placePiece({ position: "H8", type: PieceType.ROOK, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "A1", type: PieceType.ROOK, color: PieceColor.WHITE }))
       dispatch(placePiece({ position: "H1", type: PieceType.ROOK, color: PieceColor.WHITE }))
-      //
-      // // Place knights
+
+      // Place knights
       dispatch(placePiece({ position: "B8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "G8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "B1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
       dispatch(placePiece({ position: "G1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
-      //
-      // // Place bishops
+
+      // Place bishops
       dispatch(placePiece({ position: "C8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "F8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "C1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
       dispatch(placePiece({ position: "F1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
-      //
-      // // Place queens
+
+      // Place queens
       dispatch(placePiece({ position: "D8", type: PieceType.QUEEN, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
 
