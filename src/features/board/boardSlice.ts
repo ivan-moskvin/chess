@@ -1,7 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { SquareColor } from "../square/enums"
 import { AppThunk, RootState } from "../../app/store"
-import { dragPiece, dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
+import {
+  dragPiece,
+  dropPiece,
+  modifyPieceType,
+  movePieceFromTo,
+  movePieceTo,
+  placePiece,
+  setCurrent
+} from "../piece/pieceSlice"
 import { checkTo, clearCheck, draw, mateTo } from "../game/gameSlice"
 import { traverseInTime } from "../history/historySlice"
 import { IPiece, PiecePosition } from "../piece/types"
@@ -21,6 +29,7 @@ import {
   castlingDirections,
   getAlliedRooksUnmoved,
   getCoordFromPosition,
+  getPieceByPosition,
   getPositionFromCoords,
   isSquareCanBeBeaten,
   rookReadyForCastle
@@ -81,7 +90,7 @@ const boardSlice = createSlice({
   initialState: {
     squares: [],
     activeSquare: "",
-    possibleMovements: {}
+    possibleMovements: {},
   } as Board,
   reducers: {
     initSquares: (state: Board) => {
@@ -237,46 +246,61 @@ const boardSlice = createSlice({
 
 export const initPieces =
   (): AppThunk =>
-    (dispatch) => {
+    (dispatch, getState) => {
       // Place pawns
-      for (let i = 0, charCode = 97; i < 8; i++, charCode++) {
-        dispatch(placePiece({
-          position: String.fromCharCode(charCode) + "2",
-          type: PieceType.PAWN,
-          color: PieceColor.WHITE
-        }))
-        dispatch(placePiece({
-          position: String.fromCharCode(charCode) + "7",
-          type: PieceType.PAWN,
-          color: PieceColor.BLACK
-        }))
-      }
-
-      // Place rooks
-      dispatch(placePiece({ position: "A8", type: PieceType.ROOK, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "H8", type: PieceType.ROOK, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "A1", type: PieceType.ROOK, color: PieceColor.WHITE }))
-      dispatch(placePiece({ position: "H1", type: PieceType.ROOK, color: PieceColor.WHITE }))
-
-      // Place knights
-      dispatch(placePiece({ position: "B8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "G8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "B1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
-      dispatch(placePiece({ position: "G1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
-
-      // Place bishops
-      dispatch(placePiece({ position: "C8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "F8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "C1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
-      dispatch(placePiece({ position: "F1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
-
-      // Place queens
-      dispatch(placePiece({ position: "D8", type: PieceType.QUEEN, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
-
-      // Place kings
+      // for (let i = 0, charCode = 97; i < 8; i++, charCode++) {
+      //   dispatch(placePiece({
+      //     position: String.fromCharCode(charCode) + "2",
+      //     type: PieceType.PAWN,
+      //     color: PieceColor.WHITE
+      //   }))
+      //   dispatch(placePiece({
+      //     position: String.fromCharCode(charCode) + "7",
+      //     type: PieceType.PAWN,
+      //     color: PieceColor.BLACK
+      //   }))
+      // }
+      //
+      // // Place rooks
+      // dispatch(placePiece({ position: "A8", type: PieceType.ROOK, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "H8", type: PieceType.ROOK, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "A1", type: PieceType.ROOK, color: PieceColor.WHITE }))
+      // dispatch(placePiece({ position: "H1", type: PieceType.ROOK, color: PieceColor.WHITE }))
+      //
+      // // Place knights
+      // dispatch(placePiece({ position: "B8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "G8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "B1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
+      // dispatch(placePiece({ position: "G1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
+      //
+      // // Place bishops
+      // dispatch(placePiece({ position: "C8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "F8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "C1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
+      // dispatch(placePiece({ position: "F1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
+      //
+      // // Place queens
+      // dispatch(placePiece({ position: "D8", type: PieceType.QUEEN, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
+      //
+      // // Place kings
+      // dispatch(placePiece({ position: "E8", type: PieceType.KING, color: PieceColor.BLACK }))
+      // dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
       dispatch(placePiece({ position: "E8", type: PieceType.KING, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
+
+
+      dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
+      dispatch(setCurrent({
+        ...getPieceByPosition("D1", getState().board.squares)!,
+      }))
+
+      dispatch(movePieceTo("D7"))
+
+      // dispatch(processGameState())
+
+      console.log(getState().game)
+
     }
 export const { initSquares } = boardSlice.actions
 

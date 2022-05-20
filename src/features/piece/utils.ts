@@ -319,3 +319,11 @@ export const getAlliedRooksUnmoved = (piece: IPiece, squares: Squares): IPiece[]
     .filter((piece) => piece.type === PieceType.ROOK)
     .filter((rook) => !rook.moved)
 }
+
+/**
+ * Gets piece by position
+ */
+export const getPieceByPosition = (position: PiecePosition, squares: Squares): IPiece | null => {
+  const [ y, x ] = getCoordFromPosition(position)
+  return squares[y][x]?.piece || null
+}

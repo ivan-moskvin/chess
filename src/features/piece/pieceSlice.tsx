@@ -1,4 +1,4 @@
-import { createAction, createSlice } from "@reduxjs/toolkit"
+import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { AppThunk, RootState } from "../../app/store"
 import { processGameState, selectPossibleMovements } from "../board/boardSlice"
 import { historySnapshot, traverseInTime } from "../history/historySlice"
@@ -13,7 +13,7 @@ const pieceSlice = createSlice({
     current: {} as IPiece
   },
   reducers: {
-    setCurrent: (state, action) => {
+    setCurrent: (state, action: PayloadAction<IPiece>) => {
       state.current = action.payload
     }
   },
@@ -67,6 +67,8 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
   dispatch(processPawnToQueen())
   dispatch(historySnapshot(getHistoryItemName(current.position, to, movementType)))
 }
+
+export const { setCurrent } = pieceSlice.actions
 
 export const selectCurrentPiece = (state: RootState) => state.piece.current
 
