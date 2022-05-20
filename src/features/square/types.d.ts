@@ -5,3 +5,5 @@ export interface ISquare {
   active: boolean,
   coords: [ y: number, x: number ]
 }
+
+export type Squares = ISquare[][]

@@ -1,14 +1,24 @@
 import { PieceColor, PieceType } from "../piece/pieceSlice"
-import { ISquare } from "../square/types"
+import { ISquare, Squares } from "../square/types"
 import { IPiece, PiecePosition } from "../piece/types"
 import { canIMove, canIMoveOrBeat, getCoordFromPosition, getPositionFromCoords } from "../piece/utils"
+
+/**
+ * Gets opponents color
+ * @param color
+ */
+export const getOpponentsColor = (color: PieceColor): PieceColor => {
+  return color === PieceColor.BLACK
+    ? PieceColor.WHITE
+    : PieceColor.BLACK
+}
 
 /**
  * Find square by position
  * @param position
  * @param squares
  */
-export const findSquare = (position: PiecePosition, squares: ISquare[][]): ISquare => {
+export const findSquare = (position: PiecePosition, squares: Squares): ISquare => {
   for (let i = 0; i < squares.length; i++) {
     for (let j = 0; j < squares[0].length; j++) {
       if (squares[i][j].position === position) return squares[i][j]
@@ -23,7 +33,7 @@ export const findSquare = (position: PiecePosition, squares: ISquare[][]): ISqua
  * @param color
  * @param squares
  */
-export const findKingsSquareByColor = (color: PieceColor, squares: ISquare[][]): ISquare => {
+export const findKingsSquareByColor = (color: PieceColor, squares: Squares): ISquare => {
   for (let i = 0; i < squares.length; i++) {
     for (let j = 0; j < squares[0].length; j++) {
       if (squares[i][j].piece?.type === PieceType.KING
@@ -42,7 +52,7 @@ export const findKingsSquareByColor = (color: PieceColor, squares: ISquare[][]):
  * @param kingSquare
  * @param squares
  */
-export const kingCanEscape = (kingSquare: ISquare, squares: ISquare[][]): boolean => {
+export const kingCanEscape = (kingSquare: ISquare, squares: Squares): boolean => {
   const [ y, x ] = kingSquare.coords
   const positions = [
     [ y - 1, x - 1 ],
@@ -70,7 +80,7 @@ export const kingCanEscape = (kingSquare: ISquare, squares: ISquare[][]): boolea
  * @param squares
  * @param ignoringPiecePosition
  */
-export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: number, squares: ISquare[][], ignoringPiecePosition?: PiecePosition): boolean => {
+export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: number, squares: Squares, ignoringPiecePosition?: PiecePosition): boolean => {
   if (y0 === y1 && x0 === x1) return false
 
   // If it's horizontal move
@@ -117,7 +127,7 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
  * @param allyColor
  * @param squares
  */
-export const getAlliedPieces = (allyColor: PieceColor, squares: ISquare[][]): IPiece[] => {
+export const getAlliedPieces = (allyColor: PieceColor, squares: Squares): IPiece[] => {
   const alliedPieces = []
 
   // Get allied pieces
@@ -137,7 +147,7 @@ export const getAlliedPieces = (allyColor: PieceColor, squares: ISquare[][]): IP
  * @param allyColor
  * @param squares
  */
-export const getOpponentsPieces = (allyColor: PieceColor, squares: ISquare[][]): IPiece[] => {
+export const getOpponentsPieces = (allyColor: PieceColor, squares: Squares): IPiece[] => {
   const opponentsPieces = []
 
   // Get allied pieces
@@ -153,9 +163,9 @@ export const getOpponentsPieces = (allyColor: PieceColor, squares: ISquare[][]):
 }
 
 /**
- * Checks if allied kind is disposing to threat by leaving position
+ * Checks if allied king is disposed to threat by leaving position
  */
-export const disposingKingToThreat = (protectingPosition: PiecePosition, color: PieceColor, squares: ISquare[][]): boolean => {
+export const disposingKingToThreat = (protectingPosition: PiecePosition, color: PieceColor, squares: Squares): boolean => {
   const opponentsPieces = getOpponentsPieces(color, squares)
   const alliedKingsSquare = findKingsSquareByColor(color, squares)
 
@@ -167,7 +177,7 @@ export const disposingKingToThreat = (protectingPosition: PiecePosition, color: 
 /**
  * Checks if someone can protect king
  */
-export const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare, squares: ISquare[][]): boolean => {
+export const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare, squares: Squares): boolean => {
   // Someone can go to any cell between king and threat
   const [ y1, x1 ] = getCoordFromPosition(kingSquare.position)
   const [ y0, x0 ] = getCoordFromPosition(from.position)
@@ -182,7 +192,7 @@ export const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare, square
   // West/east
   if (y0 === y1) {
     for (let i = Math.min(x0, x1) + 1; i < Math.max(x0, x1); i++) {
-      if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(y0, i), squares))) return true
+      if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(y0, i), squares, getPositionFromCoords(i, x0)))) return true
     }
   }
 
@@ -190,7 +200,7 @@ export const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare, square
   if (x0 === x1) {
     // Check all vertical pieces in between start and end
     for (let i = Math.min(y0, y1) + 1; i < Math.max(y0, y1); i++) {
-      if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, x0), squares))) return true
+      if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, x0), squares, getPositionFromCoords(i, x0)))) return true
     }
   }
 
@@ -199,7 +209,7 @@ export const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare, square
     // Check north-west or south-east
     if ((x1 < x0 && y1 < y0) || (x1 > x0 && y1 > y0)) {
       for (let i = Math.min(y0, y1) + 1, j = Math.min(x0, x1) + 1; i < Math.max(y0, y1) && j < Math.max(x0, x1); i++, j++) {
-        if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, j), squares))) return true
+        if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, j), squares, getPositionFromCoords(i, j)))) return true
       }
     }
 
@@ -207,7 +217,7 @@ export const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare, square
     if ((x1 < x0 && y1 > y0) || (x1 > x0 && y1 < y0)) {
       // console.log(alliedPieces)
       for (let i = Math.max(y0, y1) - 1, j = Math.min(x0, x1) + 1; i > Math.min(y0, y1) && j < Math.max(x0, x1); i--, j++) {
-        if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, j), squares))) return true
+        if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, j), squares, getPositionFromCoords(i, j)))) return true
       }
     }
   }

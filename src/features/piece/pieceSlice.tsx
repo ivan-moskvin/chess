@@ -1,6 +1,6 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import { AppThunk, RootState } from "../../app/store"
-import { processGameState } from "../board/boardSlice"
+import { processGameState, selectPossibleMovements } from "../board/boardSlice"
 import { getHistoryItemName, historySnapshot, traverseInTime } from "../history/historySlice"
 import { IPiece, ModifyType, Movement, PiecePosition } from "./types"
 import { getCoordFromPosition } from "./utils"
@@ -53,14 +53,14 @@ export const movePieceFromTo = createAction<Movement>("piece/move-from-to")
  * Process pawn to queen transition
  */
 const processPawnToQueen = (): AppThunk => (dispatch, getState) => {
-  const { piece } = getState()
-  const { current: { type, position } } = piece
+  const piece = selectCurrentPiece(getState())
+  const { type, position } = piece
   const [ rank ] = getCoordFromPosition(position)
 
   // Only for pawns
   if (type !== PieceType.PAWN) return
   if ([ 0, 7 ].includes(rank)) {
-    dispatch(modifyPieceType({ piece: piece.current, newType: PieceType.QUEEN }))
+    dispatch(modifyPieceType({ piece, newType: PieceType.QUEEN }))
   }
 }
 
@@ -69,14 +69,15 @@ const processPawnToQueen = (): AppThunk => (dispatch, getState) => {
  * @param to
  */
 export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState) => {
-  const getCurrent = () => getState().piece.current
-  const current = getCurrent()
+  const getCurrent = () => selectCurrentPiece(getState())
+  const current = selectCurrentPiece(getState())
+  const movementType = selectPossibleMovements(getState())[to]
 
   dispatch(pieceSlice.actions.setCurrent({ ...current, position: to }))
-  dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent() }))
+  dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent(), type: movementType }))
   dispatch(processGameState())
   dispatch(processPawnToQueen())
-  dispatch(historySnapshot(getHistoryItemName(current.position, to)))
+  dispatch(historySnapshot(getHistoryItemName(current.position, to, movementType)))
 }
 
 export const selectCurrentPiece = (state: RootState) => state.piece.current

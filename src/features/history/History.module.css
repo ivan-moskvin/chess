@@ -1,11 +1,13 @@
 .History {
   --item-size: 20px;
   --item-height: 24px;
+  --piece-size: 32px;
+  --font-size: 15px;
 }
 
 .heading {
   margin-bottom: 5px;
-  font-size: 15px;
+  font-size: var(--font-size);
   font-weight: normal;
 }
 
@@ -49,13 +51,13 @@
 .piece {
   height: var(--item-height);
   margin-right: 5px;
-  font-size: 40px;
+  font-size: var(--piece-size);
 }
 
 .move {
   display: flex;
   align-items: center;
-  font-size: var(--item-size);
+  font-size: var(--font-size);
   font-family: monospace;
 }
 

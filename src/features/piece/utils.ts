@@ -1,6 +1,6 @@
 import { PieceColor, PieceType } from "./pieceSlice"
 import { IPiece, PiecePosition } from "./types"
-import { ISquare } from "../square/types"
+import { ISquare, Squares } from "../square/types"
 import { disposingKingToThreat, findSquare, getAlliedPieces, haveObstaclesBetween } from "../board/utils"
 
 /**
@@ -85,6 +85,19 @@ const canBeBeatenByKing = (kingPiece: IPiece, to: PiecePosition): boolean => {
 
   return Math.abs(kingX - x) <= 1 && Math.abs(kingY - y) <= 1
 }
+
+/**
+ * Checks if I can move to protect
+ * @param piece
+ * @param to
+ * @param squares
+ */
+export const canIMoveToProtect = (piece: IPiece, to: PiecePosition, squares: Squares) => {
+  const [ y, x ] = getCoordFromPosition(to)
+  if (squares[y][x]?.piece) return false
+  return canIMove(piece, to, squares, piece.position)
+}
+
 /**
  * Checks can I move that piece
  * @param piece
@@ -92,7 +105,7 @@ const canBeBeatenByKing = (kingPiece: IPiece, to: PiecePosition): boolean => {
  * @param squares
  * @param ignoringPiecePosition
  */
-export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][], ignoringPiecePosition?: PiecePosition): boolean => {
+export const canIMove = (piece: IPiece, to: PiecePosition, squares: Squares, ignoringPiecePosition?: PiecePosition): boolean => {
   const { type, color, position } = piece
   if (!position) return false
   if (!ignoringPiecePosition && disposingKingToThreat(position, color, squares)) return false
@@ -170,7 +183,7 @@ export const canIMove = (piece: IPiece, to: PiecePosition, squares: ISquare[][],
  * @param fromColor
  * @param squares
  */
-export const isSquareCanBeBeaten = (square: ISquare, to: PiecePosition, fromColor: PieceColor, squares: ISquare[][]) => {
+export const isSquareCanBeBeaten = (square: ISquare, to: PiecePosition, fromColor: PieceColor, squares: Squares) => {
   return !square?.piece && isSquareProtected(to, fromColor, squares)
 }
 /**
@@ -180,12 +193,14 @@ export const isSquareCanBeBeaten = (square: ISquare, to: PiecePosition, fromColo
  * @param squares
  * @param ignoringPiecePosition
  */
-export const canIMoveOrBeat = (piece: IPiece, to: PiecePosition, squares: ISquare[][], ignoringPiecePosition?: PiecePosition): boolean => {
+export const canIMoveOrBeat = (piece: IPiece, to: PiecePosition, squares: Squares, ignoringPiecePosition?: PiecePosition): boolean => {
   const destinationSquare = findSquare(to, squares)
   const destinationPiece = destinationSquare.piece
 
   // If current piece cannot move that way return
-  if (!canIMove(piece, to, squares, ignoringPiecePosition)) return false
+  if (!canIMove(piece, to, squares, ignoringPiecePosition)) {
+    return false
+  }
 
   return !destinationPiece || canIBeat(piece, destinationPiece!)
 }
@@ -210,17 +225,17 @@ export const canIBeat = (me: IPiece, destinationPiece: IPiece): boolean => {
 /**
  * Checks if square is protected
  * @param to
- * @param fromColor
+ * @param friendlyColor
  * @param squares
  */
-export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squares: ISquare[][]): boolean => {
+export const isSquareProtected = (to: PiecePosition, friendlyColor: PieceColor, squares: Squares): boolean => {
   // Traverse all squares
   for (let i = 0; i < squares.length; i++) {
     for (let j = 0; j < squares[0].length; j++) {
       const piece = squares[i][j]?.piece
       //  If square has piece
-      //  and piece's color is differs from the fromColor(our color)
-      if (pieceHasDiffColor(piece!, fromColor)) {
+      //  and piece's color is differs from our color
+      if (pieceHasDiffColor(piece!, friendlyColor)) {
         // Process king logic to prevent infinite recursion
         if (piece!.type === PieceType.KING) {
           if (canBeBeatenByKing(piece!, to)) {
@@ -237,7 +252,7 @@ export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squa
         }
 
         // Process pawn logic
-        if (canBeBeatenByPawn(piece!, to, fromColor)) {
+        if (canBeBeatenByPawn(piece!, to, friendlyColor)) {
           return true
         }
       }
@@ -249,12 +264,26 @@ export const isSquareProtected = (to: PiecePosition, fromColor: PieceColor, squa
 }
 
 /**
- * Checks if king is ready for castle
+ * Return king's possible castling directions
  * @param king
+ * @param squares
+ * @return [left side, right side]
  */
-export const kingReadyForCastle = (king: IPiece): boolean => {
-  if (king.type !== PieceType.KING) return false
-  return !king.moved
+export const castlingDirections = (king: IPiece, squares: Squares): [ left: boolean, right: boolean ] => {
+  if (king.underCheck) return [ false, false ]
+  if (king.moved) return [ false, false ]
+
+  const [ rank ] = getCoordFromPosition(king.position)
+
+  const canICastle = (direction: string): boolean => {
+    if (direction === "left") {
+      return [ 1, 2, 3 ].every((file) => !isSquareProtected(getPositionFromCoords(rank, file), king.color, squares))
+    }
+
+    return [ 5, 6 ].every((file) => !isSquareProtected(getPositionFromCoords(rank, file), king.color, squares))
+  }
+
+  return [ canICastle("left"), canICastle("right") ]
 }
 
 /**
@@ -262,11 +291,11 @@ export const kingReadyForCastle = (king: IPiece): boolean => {
  * @param rook
  * @param squares
  */
-export const rookReadyForCastle = (rook: IPiece, squares: ISquare[][]): boolean => {
+export const rookReadyForCastle = (rook: IPiece, squares: Squares): boolean => {
   const [ rank, file ] = getCoordFromPosition(rook.position)
 
   // Check left rook
-  if (file === 1) {
+  if (file === 0) {
     for (let i = 1; i <= 3; i++) {
       if (!!squares[rank][i]?.piece) return false
     }
@@ -275,15 +304,15 @@ export const rookReadyForCastle = (rook: IPiece, squares: ISquare[][]): boolean 
   }
 
   // Check right rook
-  return !!squares[rank][6]?.piece && !!squares[rank][5]?.piece
+  return !squares[rank][6]?.piece && !squares[rank][5]?.piece
 }
 
 /**
- * Gets allied rooks
+ * Gets allied rooks which haven't been moved
  * @param piece
  * @param squares
  */
-export const getAlliedRooksUnmoved = (piece: IPiece, squares: ISquare[][]): IPiece[] => {
+export const getAlliedRooksUnmoved = (piece: IPiece, squares: Squares): IPiece[] => {
   const { color } = piece
 
   return getAlliedPieces(color, squares)

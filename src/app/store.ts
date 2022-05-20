@@ -1,8 +1,8 @@
-import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
-import boardReducer from '../features/board/boardSlice';
-import pieceReducer from '../features/piece/pieceSlice';
-import gameReducer from '../features/game/gameSlice';
-import historyReducer from '../features/history/historySlice'
+import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
+import boardReducer from "../features/board/boardSlice";
+import pieceReducer from "../features/piece/pieceSlice";
+import gameReducer from "../features/game/gameSlice";
+import historyReducer from "../features/history/historySlice"
 
 export const store = configureStore({
   reducer: {

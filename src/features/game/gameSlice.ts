@@ -22,7 +22,7 @@ const gameSlice = createSlice({
       state.mateTo = action.payload
       state.gameOver = true
     },
-    clearCheck: (state) => {
+    clearCheck: (state, _: PayloadAction<PieceColor>) => {
       state.checkTo = null
     },
     draw: (state) => {

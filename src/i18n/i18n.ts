@@ -11,7 +11,8 @@ const resources = {
       "Moves (click to traverse)": "Ходы (нажмите, чтобы вернуться)",
       "check": "шах",
       "mate": "мат",
-      "draw": "Ничья"
+      "draw": "Ничья",
+      "castle": "рокировка"
     }
   },
   en: {
@@ -22,7 +23,8 @@ const resources = {
       "Moves (click to traverse)": "Moves (click to traverse)",
       "check": "check",
       "mate": "mate",
-      "draw": "draw"
+      "draw": "draw",
+      "castle": "castle"
     }
   }
 }
