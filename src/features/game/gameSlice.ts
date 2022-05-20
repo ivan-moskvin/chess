@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { movePieceFromTo, PieceColor } from "../piece/pieceSlice"
+import { movePieceFromTo } from "../piece/pieceSlice"
 import { RootState } from "../../app/store"
 import { traverseInTime } from "../history/historySlice"
 import { Game } from "./types"
+import { PieceColor } from "../piece/enums";
 
 const gameSlice = createSlice({
   name: "game",

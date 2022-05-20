@@ -1,7 +1,7 @@
-import { PieceColor, PieceType } from "../piece/pieceSlice"
 import { ISquare, Squares } from "../square/types"
 import { IPiece, PiecePosition } from "../piece/types"
 import { canIMove, canIMoveOrBeat, getCoordFromPosition, getPositionFromCoords } from "../piece/utils"
+import { PieceColor, PieceType } from "../piece/enums";
 
 /**
  * Gets opponents color

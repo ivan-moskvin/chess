@@ -1,5 +1,4 @@
 import styles from "./Square.module.css"
-import { SquareColor } from "./squareSlice"
 import { FC } from "react"
 import classNames from "classnames"
 import { Piece } from "../piece/Piece"
@@ -8,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectActiveSquare, selectPossibleMovements } from "../board/boardSlice"
 import { movePieceTo, selectCurrentPiece } from "../piece/pieceSlice"
 import { ISquare } from "./types"
+import { SquareColor } from "./enums";
 
 interface Props {
   square: ISquare

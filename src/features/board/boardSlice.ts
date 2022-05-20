@@ -1,15 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { SquareColor } from "../square/squareSlice"
+import { SquareColor } from "../square/enums"
 import { AppThunk, RootState } from "../../app/store"
-import {
-  dragPiece,
-  dropPiece,
-  modifyPieceType,
-  movePieceFromTo,
-  PieceColor,
-  PieceType,
-  placePiece
-} from "../piece/pieceSlice"
+import { dragPiece, dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
 import { checkTo, clearCheck, draw, mateTo } from "../game/gameSlice"
 import { traverseInTime } from "../history/historySlice"
 import { IPiece, PiecePosition } from "../piece/types"
@@ -34,6 +26,7 @@ import {
   rookReadyForCastle
 } from "../piece/utils"
 import { MovementType } from "./enums";
+import { PieceColor, PieceType } from "../piece/enums";
 
 /**
  * Processes check/mate situation

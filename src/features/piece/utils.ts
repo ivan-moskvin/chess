@@ -1,7 +1,7 @@
-import { PieceColor, PieceType } from "./pieceSlice"
 import { IPiece, PiecePosition } from "./types"
 import { ISquare, Squares } from "../square/types"
 import { disposingKingToThreat, findSquare, getAlliedPieces, haveObstaclesBetween } from "../board/utils"
+import { PieceColor, PieceType } from "./enums";
 
 /**
  * Gets unicode piece symbol

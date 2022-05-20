@@ -1,12 +1,12 @@
 import { FC } from "react"
 import { traverseToMove } from "./historySlice"
 import styles from "./History.module.css"
-import { PieceColor, PieceType } from "../piece/pieceSlice"
 import { useAppDispatch } from "../../app/hooks"
 import classNames from "classnames"
 import { useTranslation } from "react-i18next"
 import { HistoryItem as HistoryItemType } from "./types"
 import { getPieceIcon } from "../piece/utils"
+import { PieceColor, PieceType } from "../piece/enums";
 
 type HistroyItemProps = {
   historyItem: HistoryItemType

@@ -1,23 +1,11 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import { AppThunk, RootState } from "../../app/store"
 import { processGameState, selectPossibleMovements } from "../board/boardSlice"
-import { getHistoryItemName, historySnapshot, traverseInTime } from "../history/historySlice"
+import { historySnapshot, traverseInTime } from "../history/historySlice"
 import { IPiece, ModifyType, Movement, PiecePosition } from "./types"
 import { getCoordFromPosition } from "./utils"
-
-export enum PieceType {
-  KING = "King",
-  QUEEN = "Queen",
-  ROOK = "Rook",
-  BISHOP = "Bishop",
-  KNIGHT = "Knight",
-  PAWN = "Pawn"
-}
-
-export enum PieceColor {
-  BLACK = "Black",
-  WHITE = "White"
-}
+import { getHistoryItemName } from "../history/utils";
+import { PieceType } from "./enums";
 
 const pieceSlice = createSlice({
   name: "piece",
