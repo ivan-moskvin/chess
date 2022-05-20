@@ -20,7 +20,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Turns logging
 - ✅ i18n (translate and auto detect)
 - ✅ Restrict moves that put king under threat
-- ☑️ Castling
+- ✅ Castling
 - ☑️ Tests
     - ☑️ Smoke
     - ☑️ Actions
