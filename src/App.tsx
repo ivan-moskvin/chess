@@ -15,7 +15,7 @@ function App() {
   }, [ dispatch ])
 
   return (
-    <div className={styles.App}>
+    <div className={ styles.app }>
       <Board/>
     </div>
   )

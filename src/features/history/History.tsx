@@ -17,10 +17,10 @@ export const History = () => {
   if (!history.length) return null
 
   return (
-    <section className={styles.History}>
-      <h3 className={styles.heading}>{t("Moves (click to traverse)")}:</h3>
-      <ul className={styles.list} ref={listRef}>
-        {history.map((historyItem) => <HistoryItem key={historyItem.name} historyItem={historyItem}/>)}
+    <section className={ styles.history }>
+      <h3 className={ styles.heading }>{ t("Moves (click to traverse)") }:</h3>
+      <ul className={ styles.list } ref={ listRef }>
+        { history.map((historyItem) => <HistoryItem key={ historyItem.name } historyItem={ historyItem }/>) }
       </ul>
     </section>
   )

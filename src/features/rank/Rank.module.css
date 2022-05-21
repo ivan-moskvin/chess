@@ -1,5 +1,5 @@
-.Rank {
-    display: flex;
-    flex-flow: row;
-    flex-wrap: nowrap;
+.rank {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: nowrap;
 }

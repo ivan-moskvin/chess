@@ -1,20 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { SquareColor } from "../square/enums"
 import { AppThunk, RootState } from "../../app/store"
-import {
-  dragPiece,
-  dropPiece,
-  modifyPieceType,
-  movePieceFromTo,
-  movePieceTo,
-  placePiece,
-  setCurrent
-} from "../piece/pieceSlice"
+import { dragPiece, dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
 import { checkTo, clearCheck, draw, mateTo } from "../game/gameSlice"
 import { traverseInTime } from "../history/historySlice"
-import { IPiece, PiecePosition } from "../piece/types"
-import { ISquare, Squares } from "../square/types"
-import { Board, PossibleMovements } from "./types"
+import { Piece, PiecePosition } from "../piece/types"
+import { Square, Squares } from "../square/types"
+import { Board, PieceMap, PossibleMovements } from "./types"
 import {
   findKingsSquareByColor,
   findSquare,
@@ -29,7 +21,7 @@ import {
   castlingDirections,
   getAlliedRooksUnmoved,
   getCoordFromPosition,
-  getPieceByPosition,
+  getPieceMapName,
   getPositionFromCoords,
   isSquareCanBeBeaten,
   rookReadyForCastle
@@ -91,6 +83,7 @@ const boardSlice = createSlice({
     squares: [],
     activeSquare: "",
     possibleMovements: {},
+    pieceMap: {}
   } as Board,
   reducers: {
     initSquares: (state: Board) => {
@@ -100,7 +93,7 @@ const boardSlice = createSlice({
           .map(() =>
             new Array(8)
               .fill(null)
-              .map(() => ({} as ISquare)))
+              .map(() => ({} as Square)))
 
       const n = squares.length
       const m = squares[0].length
@@ -132,21 +125,30 @@ const boardSlice = createSlice({
       const { position, type, color } = action.payload
       const [ rank, file ] = getCoordFromPosition(position)
 
-      state.squares[rank][file].piece = {
+      const piece = {
         type,
         color,
         position: position.toUpperCase(),
-        moved: false
+        moved: false,
+        coords: [ rank, file ]
       }
+
+      state.pieceMap[getPieceMapName(piece)] = piece
+      state.squares[rank][file].piece = piece
     })
     builder.addCase(modifyPieceType, (state, action) => {
-      const { newType, piece: { position } } = action.payload
+      const { newType, piece } = action.payload
+      const { position } = piece
       const [ rank, file ] = getCoordFromPosition(position)
+      const mapPiece = state.pieceMap[getPieceMapName(piece)]
 
-      state.squares[rank][file].piece!.type = newType
+      mapPiece.type = newType
+
+      state.squares[rank][file].piece = mapPiece
+      state.pieceMap[getPieceMapName(mapPiece)] = mapPiece
     })
     builder
-      .addCase(dragPiece, (state: Board, action: PayloadAction<IPiece>) => {
+      .addCase(dragPiece, (state: Board, action: PayloadAction<Piece>) => {
         const { squares } = state
         const { position } = action.payload
         const square = findSquare(position, squares)
@@ -169,6 +171,10 @@ const boardSlice = createSlice({
             }
           }
         }
+
+        /**
+         * TODO: Build possible movements
+         */
 
         // Castling
         if (piece.type === PieceType.KING) {
@@ -206,25 +212,35 @@ const boardSlice = createSlice({
       const [ rankFrom, fileFrom ] = getCoordFromPosition(from)
       const [ rankTo, fileTo ] = getCoordFromPosition(to)
 
-      delete state.squares[rankFrom][fileFrom].piece
+      const mapPiece = state.pieceMap[getPieceMapName(piece)]
+      mapPiece.moved = true
+      mapPiece.coords = [ rankTo, fileTo ]
+      mapPiece.position = getPositionFromCoords(rankTo, fileTo)
 
-      state.squares[rankTo][fileTo].piece = {
-        ...piece,
-        moved: true
-      }
+      delete state.squares[rankFrom][fileFrom].piece
+      state.squares[rankTo][fileTo].piece = mapPiece
 
       if (type === MovementType.CASTLE) {
         const rook = state.squares[rankTo][fileTo === 2 ? 0 : 7].piece
+        const mapRook = state.pieceMap[getPieceMapName(rook)]
 
         if (fileTo === 2) {
+          mapRook.moved = true
+          mapRook.coords = [ rankTo, 3 ]
+          mapRook.position = getPositionFromCoords(rankTo, 3)
+
           delete state.squares[rankTo][0].piece
-          state.squares[rankTo][3].piece = rook
+          state.squares[rankTo][3].piece = mapRook
 
           return
         }
 
+        mapRook.moved = true
+        mapRook.coords = [ rankTo, 5 ]
+        mapRook.position = getPositionFromCoords(rankTo, 5)
+
         delete state.squares[rankTo][7].piece
-        state.squares[rankTo][5].piece = rook
+        state.squares[rankTo][5].piece = mapRook
 
         return
 
@@ -291,15 +307,6 @@ export const initPieces =
 
 
       dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
-      dispatch(setCurrent({
-        ...getPieceByPosition("D1", getState().board.squares)!,
-      }))
-
-      dispatch(movePieceTo("D7"))
-
-      // dispatch(processGameState())
-
-      console.log(getState().game)
 
     }
 export const { initSquares } = boardSlice.actions
@@ -307,5 +314,6 @@ export const { initSquares } = boardSlice.actions
 export const selectSquares = (state: RootState): Squares => state.board.squares
 export const selectActiveSquare = (state: RootState): string => state.board.activeSquare
 export const selectPossibleMovements = (state: RootState): PossibleMovements => state.board.possibleMovements
+export const selectPieceMap = (state: RootState): PieceMap => state.board.pieceMap
 
 export default boardSlice.reducer

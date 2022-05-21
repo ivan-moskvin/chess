@@ -1,5 +1,5 @@
-import { ISquare, Squares } from "../square/types"
-import { IPiece, PiecePosition } from "../piece/types"
+import { Square, Squares } from "../square/types"
+import { Piece, PiecePosition } from "../piece/types"
 import { canIMove, canIMoveOrBeat, getCoordFromPosition, getPositionFromCoords } from "../piece/utils"
 import { PieceColor, PieceType } from "../piece/enums";
 
@@ -18,14 +18,14 @@ export const getOpponentsColor = (color: PieceColor): PieceColor => {
  * @param position
  * @param squares
  */
-export const findSquare = (position: PiecePosition, squares: Squares): ISquare => {
+export const findSquare = (position: PiecePosition, squares: Squares): Square => {
   for (let i = 0; i < squares.length; i++) {
     for (let j = 0; j < squares[0].length; j++) {
       if (squares[i][j].position === position) return squares[i][j]
     }
   }
 
-  return {} as ISquare
+  return {} as Square
 }
 
 /**
@@ -33,7 +33,7 @@ export const findSquare = (position: PiecePosition, squares: Squares): ISquare =
  * @param color
  * @param squares
  */
-export const findKingsSquareByColor = (color: PieceColor, squares: Squares): ISquare => {
+export const findKingsSquareByColor = (color: PieceColor, squares: Squares): Square => {
   for (let i = 0; i < squares.length; i++) {
     for (let j = 0; j < squares[0].length; j++) {
       if (squares[i][j].piece?.type === PieceType.KING
@@ -44,7 +44,7 @@ export const findKingsSquareByColor = (color: PieceColor, squares: Squares): ISq
     }
   }
 
-  return {} as ISquare
+  return {} as Square
 }
 
 /**
@@ -52,7 +52,7 @@ export const findKingsSquareByColor = (color: PieceColor, squares: Squares): ISq
  * @param kingSquare
  * @param squares
  */
-export const kingCanEscape = (kingSquare: ISquare, squares: Squares): boolean => {
+export const kingCanEscape = (kingSquare: Square, squares: Squares): boolean => {
   const [ y, x ] = kingSquare.coords
   const positions = [
     [ y - 1, x - 1 ],
@@ -127,7 +127,7 @@ export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: num
  * @param allyColor
  * @param squares
  */
-export const getAlliedPieces = (allyColor: PieceColor, squares: Squares): IPiece[] => {
+export const getAlliedPieces = (allyColor: PieceColor, squares: Squares): Piece[] => {
   const alliedPieces = []
 
   // Get allied pieces
@@ -147,7 +147,7 @@ export const getAlliedPieces = (allyColor: PieceColor, squares: Squares): IPiece
  * @param allyColor
  * @param squares
  */
-export const getOpponentsPieces = (allyColor: PieceColor, squares: Squares): IPiece[] => {
+export const getOpponentsPieces = (allyColor: PieceColor, squares: Squares): Piece[] => {
   const opponentsPieces = []
 
   // Get allied pieces
@@ -177,7 +177,7 @@ export const disposingKingToThreat = (protectingPosition: PiecePosition, color: 
 /**
  * Checks if someone can protect king
  */
-export const someoneCanProtectKing = (kingSquare: ISquare, from: ISquare, squares: Squares): boolean => {
+export const someoneCanProtectKing = (kingSquare: Square, from: Square, squares: Squares): boolean => {
   // Someone can go to any cell between king and threat
   const [ y1, x1 ] = getCoordFromPosition(kingSquare.position)
   const [ y0, x0 ] = getCoordFromPosition(from.position)

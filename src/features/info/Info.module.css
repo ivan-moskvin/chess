@@ -1,4 +1,4 @@
-.Info {
+.info {
   position: relative;
   display: flex;
   flex-flow: column;
@@ -16,7 +16,7 @@
 
 }
 
-.Info:before {
+.info:before {
   content: '';
   position: absolute;
   top: 0;

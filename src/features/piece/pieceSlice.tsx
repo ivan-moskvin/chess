@@ -2,7 +2,7 @@ import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { AppThunk, RootState } from "../../app/store"
 import { processGameState, selectPossibleMovements } from "../board/boardSlice"
 import { historySnapshot, traverseInTime } from "../history/historySlice"
-import { IPiece, ModifyType, Movement, PiecePosition } from "./types"
+import { ModifyType, Movement, Piece, PiecePosition, PlacePiece } from "./types"
 import { getCoordFromPosition } from "./utils"
 import { getHistoryItemName } from "../history/utils";
 import { PieceType } from "./enums";
@@ -10,10 +10,10 @@ import { PieceType } from "./enums";
 const pieceSlice = createSlice({
   name: "piece",
   initialState: {
-    current: {} as IPiece
+    current: {} as Piece
   },
   reducers: {
-    setCurrent: (state, action: PayloadAction<IPiece>) => {
+    setCurrent: (state, action: PayloadAction<Piece>) => {
       state.current = action.payload
     }
   },
@@ -22,7 +22,7 @@ const pieceSlice = createSlice({
       state.current = action.payload
     })
     builder.addCase(dropPiece, (state) => {
-      state.current = {} as IPiece
+      state.current = {} as Piece
     })
     builder.addCase(traverseInTime, (state, action) => {
       return action.payload.piece
@@ -30,9 +30,9 @@ const pieceSlice = createSlice({
   })
 })
 
-export const dragPiece = createAction<IPiece>("piece/drag")
+export const dragPiece = createAction<Piece>("piece/drag")
 export const dropPiece = createAction<void>("piece/drop")
-export const placePiece = createAction<IPiece>("piece/place")
+export const placePiece = createAction<PlacePiece>("piece/place")
 export const modifyPieceType = createAction<ModifyType>("piece/modify-type")
 export const movePieceFromTo = createAction<Movement>("piece/move-from-to")
 

@@ -1,19 +1,19 @@
 import styles from "./Square.module.css"
 import { FC } from "react"
 import classNames from "classnames"
-import { Piece } from "../piece/Piece"
+import { PieceComponent } from "../piece/PieceComponent"
 import { useDrop } from "react-dnd"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectActiveSquare, selectPossibleMovements } from "../board/boardSlice"
 import { movePieceTo, selectCurrentPiece } from "../piece/pieceSlice"
-import { ISquare } from "./types"
+import { Square } from "./types"
 import { SquareColor } from "./enums";
 
 interface Props {
-  square: ISquare
+  square: Square
 }
 
-export const Square: FC<Props> = ({ square }) => {
+export const SquareComponent: FC<Props> = ({ square }) => {
   const dispatch = useAppDispatch()
   const currentPiece = useAppSelector(selectCurrentPiece)
   const activeSquare = useAppSelector(selectActiveSquare)
@@ -33,11 +33,11 @@ export const Square: FC<Props> = ({ square }) => {
   return <div
     ref={ drop }
     className={ classNames([
-      styles.Square,
+      styles.square,
       square.position === activeSquare ? styles.active : null,
       square.position in possibleMovements ? styles.possible : null,
       square.color === SquareColor.BLACK
         ? styles.black
         : styles.white ]) }
-  >{ square.piece ? <Piece square={ square }/> : null }</div>
+  >{ square.piece ? <PieceComponent piece={ square.piece }/> : null }</div>
 }

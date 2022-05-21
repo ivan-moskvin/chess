@@ -1,82 +1,82 @@
-.Piece {
-    width: 65px;
-    height: 65px;
-    background-color: transparent;
-    background-repeat: no-repeat;
+.piece {
+  width: 65px;
+  height: 65px;
+  background-color: transparent;
+  background-repeat: no-repeat;
 }
 
-.PieceBlackPawn {
-    background-size: 35px;
-    background-position: center -54px;
-    background-image: url('./images/black-pawn.png');
+.black_pawn {
+  background-size: 35px;
+  background-position: center -54px;
+  background-image: url('./images/black-pawn.png');
 }
 
-.PieceWhitePawn {
-    background-size: 35px;
-    background-position: center -48px;
-    background-image: url('./images/white-pawn.png');
+.white_pawn {
+  background-size: 35px;
+  background-position: center -48px;
+  background-image: url('./images/white-pawn.png');
 }
 
-.PieceBlackRook {
-    background-size: 42px;
-    background-position: bottom;
-    background-image: url('./images/black-rook.png');
+.black_rook {
+  background-size: 42px;
+  background-position: bottom;
+  background-image: url('./images/black-rook.png');
 }
 
-.PieceWhiteRook {
-    background-size: 42px;
-    background-position: bottom;
-    background-image: url('./images/white-rook.png');
+.white_rook {
+  background-size: 42px;
+  background-position: bottom;
+  background-image: url('./images/white-rook.png');
 }
 
-.PieceBlackBishop {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/black-bishop.png');
+.black_bishop {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/black-bishop.png');
 }
 
-.PieceWhiteBishop {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/white-bishop.png');
+.white_bishop {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/white-bishop.png');
 }
 
-.PieceBlackKnight {
-    background-size: 37px;
-    background-position: bottom;
-    background-image: url('./images/black-knight.png');
+.black_knight {
+  background-size: 37px;
+  background-position: bottom;
+  background-image: url('./images/black-knight.png');
 }
 
-.PieceWhiteKnight {
-    background-size: 34px;
-    background-position: bottom;
-    background-image: url('./images/white-knight.png');
+.white_knight {
+  background-size: 34px;
+  background-position: bottom;
+  background-image: url('./images/white-knight.png');
 }
 
-.PieceBlackQueen {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/black-queen.png');
+.black_queen {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/black-queen.png');
 }
 
-.PieceWhiteQueen {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/white-queen.png');
+.white_queen {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/white-queen.png');
 }
 
-.PieceBlackKing {
-    background-size: 28px;
-    background-position: bottom;
-    background-image: url('./images/black-king.png');
+.black_king {
+  background-size: 28px;
+  background-position: bottom;
+  background-image: url('./images/black-king.png');
 }
 
-.PieceWhiteKing {
-    background-size: 28px;
-    background-position: bottom;
-    background-image: url('./images/white-king.png');
+.white_king {
+  background-size: 28px;
+  background-position: bottom;
+  background-image: url('./images/white-king.png');
 }
 
-.Dragging {
-    opacity: 0.5;
+.dragging {
+  opacity: 0.5;
 }

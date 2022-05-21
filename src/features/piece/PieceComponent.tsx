@@ -5,13 +5,13 @@ import classNames from "classnames"
 import { useDrag } from "react-dnd"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectGameOver, selectTurn } from "../game/gameSlice"
-import { ISquare } from "../square/types"
+import { Piece } from "./types";
 
 interface Props {
-  square: ISquare;
+  piece: Piece;
 }
 
-export const Piece: FC<Props> = ({ square }) => {
+export const PieceComponent: FC<Props> = ({ piece }) => {
   const dispatch = useAppDispatch()
   const turn = useAppSelector(selectTurn)
   const gameOver = useAppSelector(selectGameOver)
@@ -22,30 +22,30 @@ export const Piece: FC<Props> = ({ square }) => {
       dispatch(dropPiece())
     },
     canDrag: () => {
-      return turn === square.piece!.color && !gameOver
+      return turn === piece!.color && !gameOver
     },
     collect: (monitor) => {
       if (monitor.isDragging()) {
-        dispatch(dragPiece(square.piece!))
+        dispatch(dragPiece(piece))
       }
       return {
-        piece: square.piece,
+        piece: piece,
         canDrag: monitor.canDrag(),
         isDragging: monitor.isDragging(),
       }
     },
-  }), [ square, turn ])
+  }), [ piece, turn ])
 
 
-  if (!square.piece) return null
-  const { piece: { color, type } } = square
+  if (!piece) return null
+  const { color, type } = piece
 
   return <div
-    ref={drag}
-    className={classNames({
-      [styles.Dragging]: collected.isDragging,
-      [styles.Piece]: true,
-      [styles[`Piece${color}${type}`]]: true
+    ref={ drag }
+    className={ classNames({
+      [styles.dragging]: collected.isDragging,
+      [styles.piece]: true,
+      [styles[`${ color.toLowerCase() }_${ type.toLowerCase() }`]]: true
     })
     }
   />
