@@ -6,7 +6,10 @@ export interface Piece {
   color: PieceColor,
   moved?: boolean,
   underCheck?: boolean,
-  coords: number[]
+  coords: {
+    rank: number,
+    file: number
+  }
 }
 
 export type PlacePiece = Pick<Piece, "position", "type", "color">

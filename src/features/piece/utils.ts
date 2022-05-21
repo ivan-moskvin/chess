@@ -333,4 +333,4 @@ export const getPieceByPosition = (position: PiecePosition, squares: Squares): P
  * @param type
  * @param color
  */
-export const getPieceMapName = ({ type, color }: Piece): string => `${ type }_${ color }`
+export const getPieceMapName = ({ type, color }: Partial<Piece>): string => `${ color }_${ type }`

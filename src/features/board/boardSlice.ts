@@ -8,16 +8,19 @@ import { Piece, PiecePosition } from "../piece/types"
 import { Square, Squares } from "../square/types"
 import { Board, PieceMap, PossibleMovements } from "./types"
 import {
+  buildDiagonalPositions,
+  buildHorizontalPositions,
+  buildVerticalPositions,
   findKingsSquareByColor,
   findSquare,
   getAlliedPieces,
   getOpponentsColor,
+  getOpponentsPieces,
   kingCanEscape,
   someoneCanProtectKing
 } from "./utils"
 import {
   canIMoveOrBeat,
-  canIMoveToProtect,
   castlingDirections,
   getAlliedRooksUnmoved,
   getCoordFromPosition,
@@ -130,7 +133,7 @@ const boardSlice = createSlice({
         color,
         position: position.toUpperCase(),
         moved: false,
-        coords: [ rank, file ]
+        coords: { rank, file }
       }
 
       state.pieceMap[getPieceMapName(piece)] = piece
@@ -150,31 +153,130 @@ const boardSlice = createSlice({
     builder
       .addCase(dragPiece, (state: Board, action: PayloadAction<Piece>) => {
         const { squares } = state
-        const { position } = action.payload
-        const square = findSquare(position, squares)
+        const piece = action.payload
+        const { position, color } = piece
 
         // If piece is no longer at the start position
-        if (!square.piece) return
-
-        const { piece } = square
+        if (!piece) return
 
         state.activeSquare = position
 
 
         // Get possible movements
-        for (let i = 0; i < squares.length; i++) {
-          for (let j = 0; j < squares[0].length; j++) {
-            if (canIMoveOrBeat(piece, squares[i][j].position, squares)
-              || canIMoveToProtect(piece, squares[i][j].position, squares)) {
-              const position: PiecePosition = squares[i][j].position
-              state.possibleMovements[position] = MovementType.REGULAR
-            }
-          }
-        }
+        // for (let i = 0; i < squares.length; i++) {
+        //   for (let j = 0; j < squares[0].length; j++) {
+        //     if (canIMoveOrBeat(piece, squares[i][j].position, squares)
+        //       || canIMoveToProtect(piece, squares[i][j].position, squares)) {
+        //       const position: PiecePosition = squares[i][j].position
+        //       state.possibleMovements[position] = MovementType.REGULAR
+        //     }
+        //   }
+        // }
 
         /**
          * TODO: Build possible movements
          */
+        const buildPossibleMovements = (piece: Piece, ignorePosition?: PiecePosition): PiecePosition[] => {
+          const { type, color, coords: { rank, file } } = piece
+          const positions: PiecePosition[] = []
+
+          switch (type) {
+            case PieceType.PAWN:
+              if (color === PieceColor.BLACK) {
+                if (rank < 6) {
+                  positions.push(getPositionFromCoords(rank + 1, file))
+                }
+                if (!piece.moved) {
+                  positions.push(getPositionFromCoords(rank + 2, file))
+                }
+              } else {
+                if (rank > 1) {
+                  positions.push(getPositionFromCoords(rank - 1, file))
+                }
+                if (!piece.moved) {
+                  positions.push(getPositionFromCoords(rank - 2, file))
+                }
+              }
+
+              break
+            case PieceType.ROOK:
+              break
+            case PieceType.KNIGHT:
+              break
+            // Can do only L-type moves
+            // return (dy === 2 && dx === 1) ||
+            //   (dy === 1 && dx === 2)
+            case PieceType.BISHOP:
+              break
+            case PieceType.QUEEN:
+
+              /**
+               * TODO:
+               * 1. DRY для все построителей векторов
+               * 2. Обработать в них ignorePosition
+               *  2.1. Если ignorePosition то сразу добавлять в positions
+               * 3. Доделать для слонов и ладей
+               */
+              const north = buildVerticalPositions(rank, 0, file, color, squares, ignorePosition)
+              const south = buildVerticalPositions(rank, 7, file, color, squares, ignorePosition)
+              const west = buildHorizontalPositions(file, 0, rank, color, squares, ignorePosition)
+              const east = buildHorizontalPositions(file, 7, rank, color, squares, ignorePosition)
+              const northWest = buildDiagonalPositions(file, rank, 0, 0, color, squares, ignorePosition)
+              const northEast = buildDiagonalPositions(file, rank, 7, 0, color, squares, ignorePosition)
+              const southWest = buildDiagonalPositions(file, rank, 0, 7, color, squares, ignorePosition)
+              const southEast = buildDiagonalPositions(file, rank, 7, 7, color, squares, ignorePosition)
+              for (let pos of [
+                ...north,
+                ...south,
+                ...west,
+                ...east,
+                ...northWest,
+                ...northEast,
+                ...southWest,
+                ...southEast
+              ]) positions.push(pos)
+          }
+
+          return positions
+        }
+
+        // If dragging king
+        if (piece.type === PieceType.KING) {
+          //  build your trajectories
+
+          //  Find enemy rooks, bishops, queens
+          //  Build their trajectories
+          //  filter your trajectories excluding pieces in enemy trajectories
+
+
+        } else {
+          //  Find king
+          const king = state.pieceMap[getPieceMapName({ type: PieceType.KING, color })]
+          const myPositions: PiecePosition[] = buildPossibleMovements(piece)
+
+          //  Find enemy rooks, bishops, queens
+          const opponentsPotentialThreateningPieces = getOpponentsPieces(color, squares).filter(({ type }) => [ PieceType.ROOK, PieceType.BISHOP, PieceType.QUEEN ].includes(type))
+
+
+          // 2. Научить построитель траекторий игнорировать 1 ячейку
+          // 3. При проверке вражеских ходов отправлять построителю текущую ячейку в качетсве игнорируемой
+          // 4. Если дружественный король попал в ячейки, которые может пробить враг - стоять смирно
+
+          //  Build their trajectories
+          const opponentsThreateningMovements: PiecePosition[] = opponentsPotentialThreateningPieces.reduce<PiecePosition[]>((acc, piece) => {
+            const opponentsMovements: PiecePosition[] = buildPossibleMovements(piece, king.position)
+            for (let move of opponentsMovements) acc.push(move)
+            return acc
+          }, [])
+
+          //  If current piece position in one of their trajectories - STAND STILL
+          // if (!opponentsThreateningMovements.includes(king.position)) {
+          // Either way - add possible movements
+          for (let pos of myPositions) {
+            state.possibleMovements[pos] = MovementType.REGULAR
+          }
+          // }
+        }
 
         // Castling
         if (piece.type === PieceType.KING) {
@@ -214,7 +316,7 @@ const boardSlice = createSlice({
 
       const mapPiece = state.pieceMap[getPieceMapName(piece)]
       mapPiece.moved = true
-      mapPiece.coords = [ rankTo, fileTo ]
+      mapPiece.coords = { rank: rankTo, file: fileTo }
       mapPiece.position = getPositionFromCoords(rankTo, fileTo)
 
       delete state.squares[rankFrom][fileFrom].piece
@@ -226,7 +328,7 @@ const boardSlice = createSlice({
 
         if (fileTo === 2) {
           mapRook.moved = true
-          mapRook.coords = [ rankTo, 3 ]
+          mapRook.coords = { rank: rankTo, file: 3 }
           mapRook.position = getPositionFromCoords(rankTo, 3)
 
           delete state.squares[rankTo][0].piece
@@ -236,7 +338,7 @@ const boardSlice = createSlice({
         }
 
         mapRook.moved = true
-        mapRook.coords = [ rankTo, 5 ]
+        mapRook.coords = { rank: rankTo, file: 5 }
         mapRook.position = getPositionFromCoords(rankTo, 5)
 
         delete state.squares[rankTo][7].piece
@@ -296,7 +398,7 @@ export const initPieces =
       // dispatch(placePiece({ position: "F1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
       //
       // // Place queens
-      // dispatch(placePiece({ position: "D8", type: PieceType.QUEEN, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "B4", type: PieceType.QUEEN, color: PieceColor.BLACK }))
       // dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
       //
       // // Place kings
@@ -305,8 +407,14 @@ export const initPieces =
       dispatch(placePiece({ position: "E8", type: PieceType.KING, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
 
+      dispatch(placePiece({
+        position: "D2",
+        type: PieceType.PAWN,
+        color: PieceColor.WHITE
+      }))
 
-      dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
+
+      dispatch(placePiece({ position: "C4", type: PieceType.QUEEN, color: PieceColor.WHITE }))
 
     }
 export const { initSquares } = boardSlice.actions
