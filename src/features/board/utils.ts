@@ -2,6 +2,7 @@ import { Square, Squares } from "../square/types"
 import { Piece, PiecePosition } from "../piece/types"
 import { canIMove, canIMoveOrBeat, getCoordFromPosition, getPositionFromCoords } from "../piece/utils"
 import { PieceColor, PieceType } from "../piece/enums";
+import { TrajectoryDirection } from "./enums";
 
 /**
  * Gets opponents color
@@ -226,190 +227,84 @@ export const someoneCanProtectKing = (kingSquare: Square, from: Square, squares:
 }
 
 /**
- * Builds vertical positions
- * @param from
- * @param to
- * @param x
+ * Builds trajectory from starting point and direction
+ * @param start
+ * @param direction
  * @param color
  * @param squares
  * @param ignorePosition
  */
-export const buildVerticalPositions = (from: number, to: number, x: number, color: PieceColor, squares: Squares, ignorePosition?: PiecePosition): PiecePosition[] => {
-  const positions: PiecePosition[] = []
+export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirection, color: PieceColor, squares: Squares, ignorePosition?: PiecePosition): PiecePosition[] => {
+  let [ rank, file ] = getCoordFromPosition(start)
+  let positions: PiecePosition[] = []
+  let opponentBeaten = false
+  let verticalPointer: number = rank
+  let horizontalPointer: number = file
+  let ignoreY, ignoreX
 
-
-  if (from === to) return positions
-
-  // North
-  if (from > to) {
-    let opponentBeaten = false
-    for (let i = from - 1; i >= to; i--) {
-
-      // Hit allied piece
-      if (squares[i][x]?.piece?.color === color) return positions
-
-      // Hit enemy piece
-      if (!!squares[i][x]?.piece && squares[i][x].piece.color !== color) {
-        // If already
-        if (opponentBeaten) return positions
-        opponentBeaten = true
-      }
-
-      positions.push(squares[i][x].position)
-    }
+  if (ignorePosition) {
+    [ ignoreY, ignoreX ] = getCoordFromPosition(ignorePosition)
   }
 
-  // South
-  for (let i = from + 1; i <= to; i++) {
-    let opponentBeaten = false
-    // Hit allied piece
-    if (squares[i][x]?.piece?.color === color) return positions
+  switch (direction) {
+    case TrajectoryDirection.NORTH:
+      horizontalPointer = 0
+      verticalPointer = -1
+      break
+    case TrajectoryDirection.NORTHEAST:
+      horizontalPointer = 1
+      verticalPointer = -1
+      break
+    case TrajectoryDirection.EAST:
+      horizontalPointer = 1
+      verticalPointer = 0
+      break
+    case TrajectoryDirection.SOUTHEAST:
+      horizontalPointer = 1
+      verticalPointer = 1
+      break
+    case TrajectoryDirection.SOUTH:
+      horizontalPointer = 0
+      verticalPointer = 1
+      break
+    case TrajectoryDirection.SOUTHWEST:
+      horizontalPointer = -1
+      verticalPointer = 1
+      break
+    case TrajectoryDirection.WEST:
+      horizontalPointer = -1
+      verticalPointer = 0
+      break
+    case TrajectoryDirection.NORTHWEST:
+      horizontalPointer = -1
+      verticalPointer = -1
+      break
+  }
 
-    // Hit enemy piece
-    if (!!squares[i][x]?.piece && squares[i][x]?.piece?.color !== color) {
-      // If already
-      if (opponentBeaten) return positions
+  /**
+   * TODO: Cleand this logical mess
+   */
+
+  while (
+    (
+      (
+        rank < squares.length - 1
+        && rank > 0
+        && file < squares.length - 1
+        && file > 0)
+      || (
+        rank === ignoreY && file === ignoreX
+      )
+    )
+    && !opponentBeaten
+    ) {
+    file += horizontalPointer
+    rank += verticalPointer
+    positions.push(squares[rank][file].position)
+    if (!!squares[rank][file]?.piece && squares[rank][file].piece.color !== color) {
       opponentBeaten = true
     }
-
-    positions.push(squares[i][x].position)
   }
-
-  return positions
-}
-
-/**
- * Builds horizontal positions
- * @param from
- * @param to
- * @param y
- * @param color
- * @param squares
- * @param ignorePosition
- */
-export const buildHorizontalPositions = (from: number, to: number, y: number, color: PieceColor, squares: Squares, ignorePosition?: PiecePosition): PiecePosition[] => {
-  const positions: PiecePosition[] = []
-
-  if (from === to) return positions
-
-  let opponentBeaten = false
-
-  // North
-  if (from > to) {
-    for (let i = from - 1; i >= to; i--) {
-      // Hit allied piece
-      if (squares[y][i]?.piece?.color === color) return positions
-
-      // Hit enemy piece
-      if (!!squares[y][i]?.piece && squares[y][i]?.piece.color !== color) {
-        // If already
-        if (opponentBeaten) return positions
-        opponentBeaten = true
-      }
-
-      positions.push(squares[y][i].position)
-    }
-  }
-
-  // South
-  for (let i = from + 1; i <= to; i++) {
-    // Hit allied piece
-    if (squares[y][i]?.piece?.color === color) return positions
-
-    // Hit enemy piece
-    if (!!squares[y][i]?.piece && squares[y][i]?.piece.color !== color) {
-      // If already
-      if (opponentBeaten) return positions
-      opponentBeaten = true
-    }
-
-    positions.push(squares[y][i].position)
-  }
-
-  return positions
-}
-
-/**
- * Builds diagonal positions
- * @param fromX
- * @param fromY
- * @param toX
- * @param toY
- * @param color
- * @param squares
- * @param ignorePosition
- */
-export const buildDiagonalPositions = (fromX: number, fromY: number, toX: number, toY: number, color: PieceColor, squares: Squares, ignorePosition?: PiecePosition): PiecePosition[] => {
-  const positions: PiecePosition[] = []
-
-  let opponentBeaten = false
-
-  // North-west
-  if ((toX < fromX && toY < fromY)) {
-    for (let i = fromY - 1, j = fromX - 1; i >= toY && j >= toX; i--, j--) {
-      // Hit allied piece
-      if (squares[i][j]?.piece?.color === color) return positions
-
-      // Hit enemy piece
-      if (!!squares[i][j]?.piece && squares[i][j]?.piece.color !== color) {
-        // If already
-        if (opponentBeaten) return positions
-        opponentBeaten = true
-      }
-
-
-      positions.push(squares[i][j].position)
-    }
-  }
-
-  // South-east
-  if ((toX > fromX && toY > fromY)) {
-    for (let i = fromY + 1, j = fromX + 1; i <= toY && j <= toX; i++, j++) {
-      // Hit allied piece
-      if (squares[i][j]?.piece?.color === color) return positions
-
-      // Hit enemy piece
-      if (!!squares[i][j]?.piece && squares[i][j]?.piece.color !== color) {
-        // If already
-        if (opponentBeaten) return positions
-        opponentBeaten = true
-      }
-      positions.push(squares[i][j].position)
-    }
-  }
-
-  // South-west
-  if ((toX < fromX && toY > fromY)) {
-    for (let i = fromY + 1, j = fromX - 1; i <= toY && j >= toX; i++, j--) {
-      // Hit allied piece
-      if (squares[i][j]?.piece?.color === color) return positions
-
-      // Hit enemy piece
-      if (!!squares[i][j]?.piece && squares[i][j]?.piece.color !== color) {
-        // If already
-        if (opponentBeaten) return positions
-        opponentBeaten = true
-      }
-      positions.push(squares[i][j].position)
-    }
-  }
-
-  // North-east
-  if ((toX > fromX && toY < fromY)) {
-    for (let i = fromY - 1, j = fromX + 1; i >= toY && j <= toX; i--, j++) {
-      // Hit allied piece
-      if (squares[i][j]?.piece?.color === color) return positions
-
-      // Hit enemy piece
-      if (!!squares[i][j]?.piece && squares[i][j]?.piece.color !== color) {
-        // If already
-        if (opponentBeaten) return positions
-        opponentBeaten = true
-      }
-      positions.push(squares[i][j].position)
-    }
-  }
-
 
   return positions
 }
