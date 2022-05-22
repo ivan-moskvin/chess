@@ -1,8 +1,8 @@
 import { Square, Squares } from "../square/types"
 import { Piece, PiecePosition } from "../piece/types"
 import { canIMove, canIMoveOrBeat, getCoordFromPosition, getPositionFromCoords } from "../piece/utils"
-import { PieceColor, PieceType } from "../piece/enums";
-import { TrajectoryDirection } from "./enums";
+import { PieceColor, PieceType } from "../piece/enums"
+import { TrajectoryDirection } from "./enums"
 
 /**
  * Gets opponents color
@@ -235,12 +235,14 @@ export const someoneCanProtectKing = (kingSquare: Square, from: Square, squares:
  * @param ignorePosition
  */
 export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirection, color: PieceColor, squares: Squares, ignorePosition?: PiecePosition): PiecePosition[] => {
-  let [ rank, file ] = getCoordFromPosition(start)
+  let [ currentRank, currentFile ] = getCoordFromPosition(start)
   let positions: PiecePosition[] = []
   let opponentBeaten = false
-  let verticalPointer: number = rank
-  let horizontalPointer: number = file
-  let ignoreY, ignoreX
+  let verticalPointer: number = currentRank
+  let horizontalPointer: number = currentFile
+  let ignoreY: number, ignoreX: number
+
+  const [ startY, startX ] = [ currentRank, currentFile ]
 
   if (ignorePosition) {
     [ ignoreY, ignoreX ] = getCoordFromPosition(ignorePosition)
@@ -281,27 +283,37 @@ export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirec
       break
   }
 
-  /**
-   * TODO: Cleand this logical mess
-   */
+  const isInBoundaries = (y: number, x: number): boolean => y < squares.length - 1
+    && y > 0
+    && x < squares.length - 1
+    && x > 0
+
+  const isIgnored = (y: number, x: number): boolean => y === ignoreY && x === ignoreX
+
+  const isHittingAlly = (y: number, x: number): boolean => {
+    if (y === startY && x === startX) return false
+    return !!squares[y][x]?.piece && squares[y][x].piece.color === color
+  }
+
+  const isHittingOpponent = (y: number, x: number): boolean => {
+    return !!squares[y][x]?.piece && squares[y][x].piece.color !== color
+  }
 
   while (
     (
-      (
-        rank < squares.length - 1
-        && rank > 0
-        && file < squares.length - 1
-        && file > 0)
-      || (
-        rank === ignoreY && file === ignoreX
-      )
+      isInBoundaries(currentRank, currentFile)
+      || isIgnored(currentRank, currentFile)
     )
+    && !isHittingAlly(currentRank, currentFile)
     && !opponentBeaten
     ) {
-    file += horizontalPointer
-    rank += verticalPointer
-    positions.push(squares[rank][file].position)
-    if (!!squares[rank][file]?.piece && squares[rank][file].piece.color !== color) {
+    currentFile += horizontalPointer
+    currentRank += verticalPointer
+    if (isHittingAlly(currentRank, currentFile)) continue
+
+    positions.push(squares[currentRank][currentFile].position)
+
+    if (isHittingOpponent(currentRank, currentFile)) {
       opponentBeaten = true
     }
   }

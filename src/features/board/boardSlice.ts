@@ -13,6 +13,7 @@ import {
   findSquare,
   getAlliedPieces,
   getOpponentsColor,
+  getOpponentsPieces,
   kingCanEscape,
   someoneCanProtectKing
 } from "./utils"
@@ -26,8 +27,8 @@ import {
   isSquareCanBeBeaten,
   rookReadyForCastle
 } from "../piece/utils"
-import { MovementType, TrajectoryDirection } from "./enums";
-import { PieceColor, PieceType } from "../piece/enums";
+import { MovementType, TrajectoryDirection } from "./enums"
+import { PieceColor, PieceType } from "../piece/enums"
 
 /**
  * Processes check/mate situation
@@ -182,6 +183,12 @@ const boardSlice = createSlice({
 
               break
             case PieceType.ROOK:
+              for (let pos of [
+                ...buildTrajectory(piece.position, TrajectoryDirection.NORTH, color, squares, ignorePosition),
+                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTH, color, squares, ignorePosition),
+                ...buildTrajectory(piece.position, TrajectoryDirection.WEST, color, squares, ignorePosition),
+                ...buildTrajectory(piece.position, TrajectoryDirection.EAST, color, squares, ignorePosition),
+              ]) positions.push(pos)
               break
             case PieceType.KNIGHT:
               break
@@ -189,6 +196,12 @@ const boardSlice = createSlice({
             // return (dy === 2 && dx === 1) ||
             //   (dy === 1 && dx === 2)
             case PieceType.BISHOP:
+              for (let pos of [
+                ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),
+                ...buildTrajectory(piece.position, TrajectoryDirection.NORTHEAST, color, squares, ignorePosition),
+                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
+                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
+              ]) positions.push(pos)
               break
             case PieceType.QUEEN:
               for (let pos of [
@@ -201,29 +214,56 @@ const boardSlice = createSlice({
                 ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
                 ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
               ]) positions.push(pos)
+              break
+            case PieceType.KING:
+              [
+                [ rank - 1, file - 1 ],
+                [ rank - 1, file ],
+                [ rank - 1, file + 1 ],
+                [ rank, file - 1 ],
+                [ rank, file + 1 ],
+                [ rank + 1, file - 1 ],
+                [ rank + 1, file ],
+                [ rank + 1, file + 1 ]
+              ]
+                .filter(([ y, x ]) => y >= 0 && y < 8 && x > 0 && x < 8)
+                .forEach(([ y, x ]) => {
+                  if (!squares[y][x]?.piece || squares[y][x].piece.color !== color) {
+                    positions.push(getPositionFromCoords(y, x))
+                  }
+                })
+              break
           }
 
           return positions
         }
 
+        // Build possible movements
+        for (let pos of buildPossibleMovements(piece)) {
+          state.possibleMovements[pos] = MovementType.REGULAR
+        }
+
         // If dragging king
         if (piece.type === PieceType.KING) {
-          //  build your trajectories
-
           //  Find enemy rooks, bishops, queens
-          //  Build their trajectories
-          //  filter your trajectories excluding pieces in enemy trajectories
-        } else {
-          const myPositions: PiecePosition[] = buildPossibleMovements(piece)
+          const threateningPieces = getOpponentsPieces(color, squares)
+            .filter(({ type }) => [ PieceType.ROOK, PieceType.BISHOP, PieceType.QUEEN ].includes(type))
 
-          for (let pos of myPositions) {
-            state.possibleMovements[pos] = MovementType.REGULAR
-          }
+          //  Build their trajectories
+          const threateningMovements = threateningPieces.reduce<Set<PiecePosition>>((acc, cur) => {
+            for (let pos of buildPossibleMovements(cur)) {
+              acc.add(pos!)
+            }
+            return acc
+          }, new Set())
+
+          //  filter your trajectories excluding pieces in enemy trajectories
+          console.log(threateningMovements)
         }
 
         // Castling
         if (piece.type === PieceType.KING) {
-          const kingCastlingDirections = castlingDirections(piece, squares);
+          const kingCastlingDirections = castlingDirections(piece, squares)
 
           // If no castling directions available
           if (kingCastlingDirections.every(d => !d)) return

@@ -1,7 +1,7 @@
 import { Piece, PiecePosition } from "./types"
 import { Square, Squares } from "../square/types"
 import { disposingKingToThreat, findSquare, getAlliedPieces, haveObstaclesBetween } from "../board/utils"
-import { PieceColor, PieceType } from "./enums";
+import { PieceColor, PieceType } from "./enums"
 
 /**
  * Gets unicode piece symbol
@@ -50,11 +50,11 @@ export const getCoordFromPosition = (position: PiecePosition): [ rank: number, f
 }
 /**
  * Gets position name from coordinates
- * @param y
- * @param x
+ * @param rank
+ * @param file
  */
-export const getPositionFromCoords = (y: number, x: number): PiecePosition => {
-  return `${ String.fromCharCode(97 + x).toUpperCase() }${ 8 - y }`
+export const getPositionFromCoords = (rank: number, file: number): PiecePosition => {
+  return `${ String.fromCharCode(97 + file).toUpperCase() }${ 8 - rank }`
 }
 /**
  * Checks if square can be beaten by pawn
