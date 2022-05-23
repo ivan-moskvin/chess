@@ -31,7 +31,8 @@ https://ivan-moskvin.github.io/chess/
 
 ## Ideas
 
-- O(n²) → O(n) obstacles search optimization
+- ✅ O(n²) → O(n) obstacles search optimization
+- Restricted moves highlighting
 - Pieces beaten / pieces list collections for allies search optimization
 - Beating animation
 - Clock

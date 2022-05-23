@@ -6,8 +6,8 @@ const resources = {
   ru: {
     translation: {
       "turn": "Ход",
-      "White": "Белые",
-      "Black": "Черные",
+      "WHITE": "Белые",
+      "BLACK": "Черные",
       "Moves (click to traverse)": "Ходы (нажмите, чтобы вернуться)",
       "check": "шах",
       "mate": "мат",
@@ -18,8 +18,8 @@ const resources = {
   en: {
     translation: {
       "turn": "Turn",
-      "White": "White",
-      "Black": "Black",
+      "WHITE": "White",
+      "BLACK": "Black",
       "Moves (click to traverse)": "Moves (click to traverse)",
       "check": "check",
       "mate": "mate",

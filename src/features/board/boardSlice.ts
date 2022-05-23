@@ -8,7 +8,7 @@ import { Piece, PiecePosition } from "../piece/types"
 import { Square, Squares } from "../square/types"
 import { Board, PieceMap, PossibleMovements } from "./types"
 import {
-  buildTrajectory,
+  buildPossibleMovements,
   findKingsSquareByColor,
   findSquare,
   getAlliedPieces,
@@ -27,7 +27,7 @@ import {
   isSquareCanBeBeaten,
   rookReadyForCastle
 } from "../piece/utils"
-import { MovementType, TrajectoryDirection } from "./enums"
+import { MovementType } from "./enums"
 import { PieceColor, PieceType } from "../piece/enums"
 
 /**
@@ -159,106 +159,34 @@ const boardSlice = createSlice({
 
         state.activeSquare = position
 
-        const buildPossibleMovements = (piece: Piece, ignorePosition?: PiecePosition): PiecePosition[] => {
-          const { type, color, coords: { rank, file } } = piece
-          const positions: PiecePosition[] = []
 
-          switch (type) {
-            case PieceType.PAWN:
-              if (color === PieceColor.BLACK) {
-                if (rank < 6) {
-                  positions.push(getPositionFromCoords(rank + 1, file))
-                }
-                if (!piece.moved) {
-                  positions.push(getPositionFromCoords(rank + 2, file))
-                }
-              } else {
-                if (rank > 1) {
-                  positions.push(getPositionFromCoords(rank - 1, file))
-                }
-                if (!piece.moved) {
-                  positions.push(getPositionFromCoords(rank - 2, file))
-                }
-              }
-
-              break
-            case PieceType.ROOK:
-              for (let pos of [
-                ...buildTrajectory(piece.position, TrajectoryDirection.NORTH, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTH, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.WEST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.EAST, color, squares, ignorePosition),
-              ]) positions.push(pos)
-              break
-            case PieceType.KNIGHT:
-              break
-            // Can do only L-type moves
-            // return (dy === 2 && dx === 1) ||
-            //   (dy === 1 && dx === 2)
-            case PieceType.BISHOP:
-              for (let pos of [
-                ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.NORTHEAST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
-              ]) positions.push(pos)
-              break
-            case PieceType.QUEEN:
-              for (let pos of [
-                ...buildTrajectory(piece.position, TrajectoryDirection.NORTH, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTH, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.WEST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.EAST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.NORTHEAST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
-                ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
-              ]) positions.push(pos)
-              break
-            case PieceType.KING:
-              [
-                [ rank - 1, file - 1 ],
-                [ rank - 1, file ],
-                [ rank - 1, file + 1 ],
-                [ rank, file - 1 ],
-                [ rank, file + 1 ],
-                [ rank + 1, file - 1 ],
-                [ rank + 1, file ],
-                [ rank + 1, file + 1 ]
-              ]
-                .filter(([ y, x ]) => y >= 0 && y < 8 && x > 0 && x < 8)
-                .forEach(([ y, x ]) => {
-                  if (!squares[y][x]?.piece || squares[y][x].piece.color !== color) {
-                    positions.push(getPositionFromCoords(y, x))
-                  }
-                })
-              break
-          }
-
-          return positions
-        }
-
-        // Build possible movements
-        for (let pos of buildPossibleMovements(piece)) {
-          state.possibleMovements[pos] = MovementType.REGULAR
-        }
+        const possibleMovements = buildPossibleMovements(piece, squares)
 
         // If dragging king
         if (piece.type === PieceType.KING) {
-          //  Find enemy rooks, bishops, queens
+          // Find enemy rooks, bishops, queens
           const threateningPieces = getOpponentsPieces(color, squares)
             .filter(({ type }) => [ PieceType.ROOK, PieceType.BISHOP, PieceType.QUEEN ].includes(type))
 
-          //  Build their trajectories
+          // Build their trajectories
           const threateningMovements = threateningPieces.reduce<Set<PiecePosition>>((acc, cur) => {
-            for (let pos of buildPossibleMovements(cur)) {
+            for (let pos of buildPossibleMovements(cur, squares)) {
               acc.add(pos!)
             }
             return acc
           }, new Set())
 
-          //  filter your trajectories excluding pieces in enemy trajectories
-          console.log(threateningMovements)
+          // Filter your trajectories excluding pieces in enemy trajectories
+          for (let threateningMove of Array.from(threateningMovements)) {
+            if (possibleMovements.has(threateningMove)) {
+              possibleMovements.delete(threateningMove)
+            }
+          }
+        }
+
+        // Build possible movements
+        for (let pos of possibleMovements) {
+          state.possibleMovements[pos] = MovementType.REGULAR
         }
 
         // Castling
@@ -402,7 +330,7 @@ export const initPieces =
       }))
 
 
-      dispatch(placePiece({ position: "E6", type: PieceType.ROOK, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "F6", type: PieceType.ROOK, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "C4", type: PieceType.QUEEN, color: PieceColor.WHITE }))
       dispatch(placePiece({ position: "B4", type: PieceType.QUEEN, color: PieceColor.BLACK }))
 

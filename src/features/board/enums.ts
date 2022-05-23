@@ -1,15 +1,15 @@
 export enum MovementType {
-  "REGULAR",
-  "CASTLE"
+  REGULAR,
+  CASTLE
 }
 
 export enum TrajectoryDirection {
-  "NORTH",
-  "NORTHEAST",
-  "EAST",
-  "SOUTHEAST",
-  "SOUTH",
-  "SOUTHWEST",
-  "WEST",
-  "NORTHWEST"
+  NORTH,
+  NORTHEAST,
+  EAST,
+  SOUTHEAST,
+  SOUTH,
+  SOUTHWEST,
+  WEST,
+  NORTHWEST
 }

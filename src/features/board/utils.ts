@@ -320,3 +320,88 @@ export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirec
 
   return positions
 }
+
+/**
+ * Builds possible movements
+ * @param piece
+ * @param ignorePosition
+ * @param squares
+ */
+export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePosition?: PiecePosition): Set<PiecePosition> => {
+  const { type, color, coords: { rank, file } } = piece
+  const positions = new Set<PiecePosition>()
+
+  switch (type) {
+    case PieceType.PAWN:
+      if (color === PieceColor.BLACK) {
+        if (rank < 6) {
+          positions.add(getPositionFromCoords(rank + 1, file))
+        }
+        if (!piece.moved) {
+          positions.add(getPositionFromCoords(rank + 2, file))
+        }
+      } else {
+        if (rank > 1) {
+          positions.add(getPositionFromCoords(rank - 1, file))
+        }
+        if (!piece.moved) {
+          positions.add(getPositionFromCoords(rank - 2, file))
+        }
+      }
+
+      break
+    case PieceType.ROOK:
+      for (let pos of [
+        ...buildTrajectory(piece.position, TrajectoryDirection.NORTH, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTH, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.WEST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.EAST, color, squares, ignorePosition),
+      ]) positions.add(pos)
+      break
+    case PieceType.KNIGHT:
+      break
+    // Can do only L-type moves
+    // return (dy === 2 && dx === 1) ||
+    //   (dy === 1 && dx === 2)
+    case PieceType.BISHOP:
+      for (let pos of [
+        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHEAST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
+      ]) positions.add(pos)
+      break
+    case PieceType.QUEEN:
+      for (let pos of [
+        ...buildTrajectory(piece.position, TrajectoryDirection.NORTH, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTH, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.WEST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.EAST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHEAST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
+        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
+      ]) positions.add(pos)
+      break
+    case PieceType.KING:
+      [
+        [ rank - 1, file - 1 ],
+        [ rank - 1, file ],
+        [ rank - 1, file + 1 ],
+        [ rank, file - 1 ],
+        [ rank, file + 1 ],
+        [ rank + 1, file - 1 ],
+        [ rank + 1, file ],
+        [ rank + 1, file + 1 ]
+      ]
+        .filter(([ y, x ]) => y >= 0 && y < 8 && x > 0 && x < 8)
+        .forEach(([ y, x ]) => {
+          if (!squares[y][x]?.piece || squares[y][x].piece.color !== color) {
+            positions.add(getPositionFromCoords(y, x))
+          }
+        })
+      break
+  }
+
+  return positions
+}
