@@ -29,6 +29,16 @@ import {
 } from "../piece/utils"
 import { MovementType } from "./enums"
 import { PieceColor, PieceType } from "../piece/enums"
+import {
+  BOARD_LAST_SQUARE,
+  BOARD_SIZE,
+  BOARD_START_SQUARE,
+  CASTLING_LEFT_KING_POS,
+  CASTLING_LEFT_ROOK_POS,
+  CASTLING_RIGHT_KING_POS,
+  CASTLING_RIGHT_ROOK_POS
+} from "./constants";
+import { CHAR_A_CODE } from "../../app/constants";
 
 /**
  * Processes check/mate situation
@@ -89,20 +99,20 @@ const boardSlice = createSlice({
   reducers: {
     initSquares: (state: Board) => {
       const squares =
-        new Array(8)
+        new Array(BOARD_SIZE)
           .fill(null)
           .map(() =>
-            new Array(8)
+            new Array(BOARD_SIZE)
               .fill(null)
               .map(() => ({} as Square)))
 
       const n = squares.length
       const m = squares[0].length
 
-      for (let i = 0, rowCount = 8; i < n; i++, rowCount--) {
+      for (let i = BOARD_START_SQUARE, rowCount = BOARD_SIZE; i < n; i++, rowCount--) {
         const isEvenRow = i % 2 === 0
 
-        for (let j = 0, charCode = 97; j < m; j++, charCode++) {
+        for (let j = BOARD_START_SQUARE, charCode = CHAR_A_CODE; j < m; j++, charCode++) {
           const name = String.fromCharCode(charCode).toUpperCase() + rowCount
           if (!isEvenRow) {
             squares[i][j].color = j % 2 === 0 ? SquareColor.BLACK : SquareColor.WHITE
@@ -200,9 +210,9 @@ const boardSlice = createSlice({
           for (let rook of getAlliedRooksUnmoved(piece, squares)) {
             if (rookReadyForCastle(rook, squares)) {
               const [ rank, file ] = getCoordFromPosition(rook.position)
-              if (file === 0 && !kingCastlingDirections[0]) continue
-              if (file === 7 && !kingCastlingDirections[1]) continue
-              const availableFile = file === 0 ? getPositionFromCoords(rank, 2) : getPositionFromCoords(rank, 6)
+              if (file === BOARD_START_SQUARE && !kingCastlingDirections[BOARD_START_SQUARE]) continue
+              if (file === CASTLING_LEFT_ROOK_POS && !kingCastlingDirections[1]) continue
+              const availableFile = file === BOARD_START_SQUARE ? getPositionFromCoords(rank, CASTLING_LEFT_KING_POS) : getPositionFromCoords(rank, CASTLING_RIGHT_KING_POS)
 
               state.possibleMovements[availableFile] = MovementType.CASTLE
             }
@@ -233,27 +243,28 @@ const boardSlice = createSlice({
       delete state.squares[rankFrom][fileFrom].piece
       state.squares[rankTo][fileTo].piece = mapPiece
 
+      // Castling
       if (type === MovementType.CASTLE) {
-        const rook = state.squares[rankTo][fileTo === 2 ? 0 : 7].piece
+        const rook = state.squares[rankTo][fileTo === CASTLING_LEFT_KING_POS ? BOARD_START_SQUARE : BOARD_LAST_SQUARE].piece
         const mapRook = state.pieceMap[getPieceMapName(rook)]
 
-        if (fileTo === 2) {
+        if (fileTo === CASTLING_LEFT_KING_POS) {
           mapRook.moved = true
-          mapRook.coords = { rank: rankTo, file: 3 }
-          mapRook.position = getPositionFromCoords(rankTo, 3)
+          mapRook.coords = { rank: rankTo, file: CASTLING_LEFT_ROOK_POS }
+          mapRook.position = getPositionFromCoords(rankTo, CASTLING_LEFT_ROOK_POS)
 
-          delete state.squares[rankTo][0].piece
-          state.squares[rankTo][3].piece = mapRook
+          delete state.squares[rankTo][BOARD_START_SQUARE].piece
+          state.squares[rankTo][CASTLING_LEFT_ROOK_POS].piece = mapRook
 
           return
         }
 
         mapRook.moved = true
-        mapRook.coords = { rank: rankTo, file: 5 }
-        mapRook.position = getPositionFromCoords(rankTo, 5)
+        mapRook.coords = { rank: rankTo, file: CASTLING_RIGHT_ROOK_POS }
+        mapRook.position = getPositionFromCoords(rankTo, CASTLING_RIGHT_ROOK_POS)
 
-        delete state.squares[rankTo][7].piece
-        state.squares[rankTo][5].piece = mapRook
+        delete state.squares[rankTo][BOARD_LAST_SQUARE].piece
+        state.squares[rankTo][CASTLING_RIGHT_ROOK_POS].piece = mapRook
 
         return
 

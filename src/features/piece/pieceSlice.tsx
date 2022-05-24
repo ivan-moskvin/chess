@@ -6,6 +6,7 @@ import { ModifyType, Movement, Piece, PiecePosition, PlacePiece } from "./types"
 import { getCoordFromPosition } from "./utils"
 import { getHistoryItemName } from "../history/utils";
 import { PieceType } from "./enums";
+import { BOARD_LAST_SQUARE, BOARD_START_SQUARE } from "../board/constants";
 
 const pieceSlice = createSlice({
   name: "piece",
@@ -47,7 +48,7 @@ const processPawnToQueen = (): AppThunk => (dispatch, getState) => {
 
   // Only for pawns
   if (type !== PieceType.PAWN) return
-  if ([ 0, 7 ].includes(rank)) {
+  if ([ BOARD_START_SQUARE, BOARD_LAST_SQUARE ].includes(rank)) {
     dispatch(modifyPieceType({ piece, newType: PieceType.QUEEN }))
   }
 }
