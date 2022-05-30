@@ -52,17 +52,30 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
   const currentSquare = findSquare(current.position, squares)
   const opponentsColor = getOpponentsColor(current.color)
   const opponentsKing = findKingsSquareByColor(opponentsColor, squares)
-  const threatPosition = findThreatPosition(current.color)
+  const threatPositionToMyKing = findThreatPosition(current.color)
 
   // If my turn causes check to my king, travel back in time
-  if (threatPosition) {
+  if (threatPositionToMyKing) {
     dispatch(back())
     toast(t<string>("cannot dispose king to threat"), { type: "error" })
-    dispatch(showThreat(threatPosition))
+    dispatch(showThreat(threatPositionToMyKing))
     setTimeout(() => {
       dispatch(hideThreat())
     }, THREAT_SHOW_TIME)
   }
+
+  /**
+   * TODO
+   * 1. Переделать шах на поиск по вражескому цвету (см. threatPositionToMyKing только цвет оппонента)
+   * 2. Доделать траектории всех фигур (кони и пешки)
+   * 3. Помним, что для пешек траектория хождения не равна траектории удара
+   * 4. Если нашли шах, то диспатчим также траекторию шаха (включая позицию самой угрожающей фигуры)
+   * 5. Строим possibleMovements для любой фигуры:
+   *  5.1 Строим все возможные ходы
+   *  5.2 Оставляем только те, которые находятся на траектории шаха
+   *  (можно защитить собой или срубить угрожающую фигуру)
+   */
+
 
   if (isCheck()) {
     dispatch(checkTo({ to: opponentsColor }))
