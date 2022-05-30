@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectActiveSquare, selectPossibleMovements } from "../board/boardSlice"
 import { movePieceTo, selectCurrentPiece } from "../piece/pieceSlice"
 import { Square } from "./types"
-import { SquareColor } from "./enums";
+import { SquareColor } from "./enums"
 
 interface Props {
   square: Square
@@ -32,12 +32,14 @@ export const SquareComponent: FC<Props> = ({ square }) => {
 
   return <div
     ref={ drop }
-    className={ classNames([
-      styles.square,
-      square.position === activeSquare ? styles.active : null,
-      square.position in possibleMovements ? styles.possible : null,
-      square.color === SquareColor.BLACK
-        ? styles.black
-        : styles.white ]) }
+    className={
+      classNames({
+        [styles.square]: true,
+        [styles.active]: square.position === activeSquare,
+        [styles.possible]: square.position in possibleMovements,
+        [styles.black]: square.color === SquareColor.BLACK,
+        [styles.white]: square.color === SquareColor.WHITE
+      })
+    }
   >{ square.piece ? <PieceComponent piece={ square.piece }/> : null }</div>
 }

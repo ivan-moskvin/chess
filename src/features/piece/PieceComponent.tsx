@@ -4,8 +4,8 @@ import { FC } from "react"
 import classNames from "classnames"
 import { useDrag } from "react-dnd"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { selectGameOver, selectTurn } from "../game/gameSlice"
-import { Piece } from "./types";
+import { selectGameOver, selectThreat, selectTurn } from "../game/gameSlice"
+import { Piece } from "./types"
 
 interface Props {
   piece: Piece;
@@ -15,6 +15,7 @@ export const PieceComponent: FC<Props> = ({ piece }) => {
   const dispatch = useAppDispatch()
   const turn = useAppSelector(selectTurn)
   const gameOver = useAppSelector(selectGameOver)
+  const threatPosition = useAppSelector(selectThreat)
 
   const [ collected, drag ] = useDrag(() => ({
     type: "piece",
@@ -44,6 +45,7 @@ export const PieceComponent: FC<Props> = ({ piece }) => {
     ref={ drag }
     className={ classNames({
       [styles.dragging]: collected.isDragging,
+      [styles.threat]: piece.position === threatPosition,
       [styles.piece]: true,
       [styles[`${ color.toLowerCase() }_${ type.toLowerCase() }`]]: true
     })

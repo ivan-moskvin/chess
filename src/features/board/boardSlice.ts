@@ -2,8 +2,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { SquareColor } from "../square/enums"
 import { AppThunk, RootState } from "../../app/store"
 import { dragPiece, dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
-import { checkTo, clearCheck, draw, mateTo } from "../game/gameSlice"
-import { traverseInTime } from "../history/historySlice"
+import { checkTo, clearCheck, draw, hideThreat, mateTo, showThreat } from "../game/gameSlice"
+import { back, traverseInTime } from "../history/historySlice"
 import { Piece, PiecePosition } from "../piece/types"
 import { Square, Squares } from "../square/types"
 import { Board, PieceMap, PossibleMovements } from "./types"
@@ -36,9 +36,13 @@ import {
   CASTLING_LEFT_KING_POS,
   CASTLING_LEFT_ROOK_POS,
   CASTLING_RIGHT_KING_POS,
-  CASTLING_RIGHT_ROOK_POS
-} from "./constants";
-import { CHAR_A_CODE } from "../../app/constants";
+  CASTLING_RIGHT_ROOK_POS,
+  THREAT_SHOW_TIME
+} from "./constants"
+import { CHAR_A_CODE } from "../../app/constants"
+import { Check } from "../game/types"
+import { toast } from "react-toastify"
+import { t } from "i18next"
 
 /**
  * Processes check/mate situation
@@ -48,9 +52,20 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
   const currentSquare = findSquare(current.position, squares)
   const opponentsColor = getOpponentsColor(current.color)
   const opponentsKing = findKingsSquareByColor(opponentsColor, squares)
+  const threatPosition = findThreatPosition(current.color)
+
+  // If my turn causes check to my king, travel back in time
+  if (threatPosition) {
+    dispatch(back())
+    toast(t<string>("cannot dispose king to threat"), { type: "error" })
+    dispatch(showThreat(threatPosition))
+    setTimeout(() => {
+      dispatch(hideThreat())
+    }, THREAT_SHOW_TIME)
+  }
 
   if (isCheck()) {
-    dispatch(checkTo(opponentsColor))
+    dispatch(checkTo({ to: opponentsColor }))
 
     if (isMate()) {
       return dispatch(mateTo(opponentsColor))
@@ -71,6 +86,17 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
     return !kingCanEscape(opponentsKing, squares)
   }
 
+  function findThreatPosition(to: PieceColor): PiecePosition | null {
+    const allyKing = findKingsSquareByColor(to, squares)
+    const opponentsPieces = getOpponentsPieces(to, squares)
+
+    for (let piece of opponentsPieces) {
+      if (buildPossibleMovements(piece, squares).has(allyKing.position)) return piece.position
+    }
+
+    return null
+  }
+
   function isCheck(): boolean {
     // If anyone threatening the king
     return canIMoveOrBeat(current, opponentsKing.position, squares)
@@ -88,14 +114,16 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
   }
 }
 
+const initialState: Board = {
+  squares: [],
+  activeSquare: "",
+  possibleMovements: {},
+  pieceMap: {}
+}
+
 const boardSlice = createSlice({
   name: "field",
-  initialState: {
-    squares: [],
-    activeSquare: "",
-    possibleMovements: {},
-    pieceMap: {}
-  } as Board,
+  initialState,
   reducers: {
     initSquares: (state: Board) => {
       const squares =
@@ -270,8 +298,8 @@ const boardSlice = createSlice({
 
       }
     })
-    builder.addCase(checkTo, (state, action) => {
-      const kingSquare = findKingsSquareByColor(action.payload, state.squares)
+    builder.addCase(checkTo, (state, action: PayloadAction<Check>) => {
+      const kingSquare = findKingsSquareByColor(action.payload.to, state.squares)
       kingSquare.piece.underCheck = true
     })
     builder.addCase(clearCheck, (state, action) => {

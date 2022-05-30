@@ -4,15 +4,17 @@ import { processGameState, selectPossibleMovements } from "../board/boardSlice"
 import { historySnapshot, traverseInTime } from "../history/historySlice"
 import { ModifyType, Movement, Piece, PiecePosition, PlacePiece } from "./types"
 import { getCoordFromPosition } from "./utils"
-import { getHistoryItemName } from "../history/utils";
-import { PieceType } from "./enums";
-import { BOARD_LAST_SQUARE, BOARD_START_SQUARE } from "../board/constants";
+import { getHistoryItemName } from "../history/utils"
+import { PieceType } from "./enums"
+import { BOARD_LAST_SQUARE, BOARD_START_SQUARE } from "../board/constants"
+
+const initialState = {
+  current: {} as Piece
+}
 
 const pieceSlice = createSlice({
   name: "piece",
-  initialState: {
-    current: {} as Piece
-  },
+  initialState,
   reducers: {
     setCurrent: (state, action: PayloadAction<Piece>) => {
       state.current = action.payload
@@ -64,9 +66,9 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
 
   dispatch(pieceSlice.actions.setCurrent({ ...current, position: to }))
   dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent(), type: movementType }))
-  dispatch(processGameState())
-  dispatch(processPawnToQueen())
   dispatch(historySnapshot(getHistoryItemName(current.position, to, movementType)))
+  dispatch(processPawnToQueen())
+  dispatch(processGameState())
 }
 
 export const { setCurrent } = pieceSlice.actions

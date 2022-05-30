@@ -9,10 +9,11 @@ const resources = {
       "WHITE": "Белые",
       "BLACK": "Черные",
       "Moves (click to traverse)": "Ходы (нажмите, чтобы вернуться)",
-      "check": "шах",
-      "mate": "мат",
+      "check": "Шах",
+      "mate": "Мат",
       "draw": "Ничья",
-      "castle": "рокировка"
+      "castle": "рокировка",
+      "cannot dispose king to threat": "Нельзя подставлять короля под угрозу"
     }
   },
   en: {
@@ -21,10 +22,11 @@ const resources = {
       "WHITE": "White",
       "BLACK": "Black",
       "Moves (click to traverse)": "Moves (click to traverse)",
-      "check": "check",
-      "mate": "mate",
-      "draw": "draw",
-      "castle": "castle"
+      "check": "Check",
+      "mate": "Mate",
+      "draw": "Draw",
+      "castle": "castle",
+      "cannot dispose king to threat": "Cannot dispose king to threat"
     }
   }
 }
