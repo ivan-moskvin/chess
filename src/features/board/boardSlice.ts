@@ -71,18 +71,20 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
 
   /**
    * TODO
-   * 2. Доделать траектории всех фигур (кони и пешки)
-   * 3. Помним, что для пешек траектория хождения не равна траектории удара
-   * 4. Если нашли шах, то диспатчим также траекторию шаха (включая позицию самой угрожающей фигуры)
    * 5. Строим possibleMovements для любой фигуры:
    *  5.1 Строим все возможные ходы
    *  5.2 Оставляем только те, которые находятся на траектории шаха
    *  (можно защитить собой или срубить угрожающую фигуру)
    */
 
-
   if (isCheckTo(opponentsColor)) {
     dispatch(checkTo({ to: opponentsColor }))
+
+    /**
+     * 4. Если нашли шах, то диспатчим также траекторию шаха (включая позицию самой угрожающей фигуры)
+     */
+
+    //dispatch(setThreatTrajectory(findThreatTrajectory()))
 
     if (isMateTo(opponentsColor)) {
       return dispatch(mateTo(opponentsColor))
@@ -109,7 +111,9 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
 
     for (let piece of opponentsPieces) {
       const moves = buildPossibleMovements(piece, squares)
-      if (moves.has(allyKing.position)) return piece.position
+      if (moves.has(allyKing.position)) {
+        return piece.position
+      }
     }
 
     return null
