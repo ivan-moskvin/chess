@@ -56,6 +56,7 @@ const gameSlice = createSlice({
 
 export const { checkTo, mateTo, clearCheck, draw, showThreat, hideThreat } = gameSlice.actions
 
+export const selectGame = (state: RootState) => state.game
 export const selectTurn = (state: RootState) => state.game.turn
 export const selectCheck = (state: RootState) => state.game.check
 export const selectMate = (state: RootState) => state.game.mateTo

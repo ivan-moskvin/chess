@@ -283,10 +283,10 @@ export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirec
       break
   }
 
-  const isInBoundaries = (y: number, x: number): boolean => y < squares.length - 1
-    && y > 0
-    && x < squares.length - 1
-    && x > 0
+  const isInBoundaries = (y: number, x: number): boolean => y < squares.length
+    && y >= 0
+    && x < squares.length
+    && x >= 0
 
   const isIgnored = (y: number, x: number): boolean => y === ignoreY && x === ignoreX
 
@@ -309,6 +309,7 @@ export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirec
     ) {
     currentFile += horizontalPointer
     currentRank += verticalPointer
+    if (!isInBoundaries(currentRank, currentFile)) break
     if (isHittingAlly(currentRank, currentFile)) continue
 
     positions.push(squares[currentRank][currentFile].position)

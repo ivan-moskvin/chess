@@ -60,21 +60,3 @@
   font-size: var(--font-size);
   font-family: monospace;
 }
-
-.state {
-  height: var(--item-height);
-  margin-left: 5px;
-  text-transform: lowercase;
-}
-
-.checkState {
-  color: yellow;
-}
-
-.mateState {
-  color: red;
-}
-
-.drawState {
-  color: green;
-}

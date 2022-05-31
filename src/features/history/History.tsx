@@ -4,6 +4,7 @@ import styles from "./History.module.css"
 import { HistoryItem } from "./HistoryItem"
 import { useTranslation } from "react-i18next"
 import { useLayoutEffect, useRef } from "react"
+import { LANG } from "../../i18n/i18n"
 
 export const History = () => {
   const { t } = useTranslation()
@@ -18,7 +19,7 @@ export const History = () => {
 
   return (
     <section className={ styles.history }>
-      <h3 className={ styles.heading }>{ t("Moves (click to traverse)") }:</h3>
+      <h3 className={ styles.heading }>{ t(LANG.MOVES) }:</h3>
       <ul className={ styles.list } ref={ listRef }>
         { history.map((historyItem) => <HistoryItem key={ historyItem.name } historyItem={ historyItem }/>) }
       </ul>

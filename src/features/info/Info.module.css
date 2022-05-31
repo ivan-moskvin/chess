@@ -36,10 +36,23 @@
   line-height: 15px;
 }
 
-.draw {
+.state {
+  height: var(--item-height);
+  margin-left: 5px;
+}
+
+.checkState {
+  color: yellow;
+}
+
+.mateState {
+  color: red;
+}
+
+.drawState {
   color: green;
 }
 
-.check {
-  color: orange;
+.pieceIcon {
+  font-size: 2em;
 }

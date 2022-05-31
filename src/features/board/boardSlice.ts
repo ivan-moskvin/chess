@@ -14,17 +14,14 @@ import {
   getAlliedPieces,
   getOpponentsColor,
   getOpponentsPieces,
-  kingCanEscape,
-  someoneCanProtectKing
+  kingCanEscape
 } from "./utils"
 import {
-  canIMoveOrBeat,
   castlingDirections,
   getAlliedRooksUnmoved,
   getCoordFromPosition,
   getPieceMapName,
   getPositionFromCoords,
-  isSquareCanBeBeaten,
   rookReadyForCastle
 } from "../piece/utils"
 import { MovementType } from "./enums"
@@ -41,8 +38,8 @@ import {
 } from "./constants"
 import { CHAR_A_CODE } from "../../app/constants"
 import { Check } from "../game/types"
-import { toast } from "react-toastify"
-import { t } from "i18next"
+import { error } from "../notify/utils"
+import { LANG } from "../../i18n/i18n"
 
 /**
  * Processes check/mate situation
@@ -56,9 +53,17 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
 
   // If my turn causes check to my king, travel back in time
   if (threatPositionToMyKing) {
+
+    // Rollback move
     dispatch(back())
-    toast(t<string>("cannot dispose king to threat"), { type: "error" })
+
+    // Show error
+    error(LANG.DISPOSING_KING_TO_THREAT)
+
+    // Highlight threat
     dispatch(showThreat(threatPositionToMyKing))
+
+    // Hide threat
     setTimeout(() => {
       dispatch(hideThreat())
     }, THREAT_SHOW_TIME)
@@ -77,10 +82,10 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
    */
 
 
-  if (isCheck()) {
+  if (isCheckTo(opponentsColor)) {
     dispatch(checkTo({ to: opponentsColor }))
 
-    if (isMate()) {
+    if (isMateTo(opponentsColor)) {
       return dispatch(mateTo(opponentsColor))
     }
 
@@ -104,25 +109,27 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
     const opponentsPieces = getOpponentsPieces(to, squares)
 
     for (let piece of opponentsPieces) {
-      if (buildPossibleMovements(piece, squares).has(allyKing.position)) return piece.position
+      const moves = buildPossibleMovements(piece, squares)
+      if (moves.has(allyKing.position)) return piece.position
     }
 
     return null
   }
 
-  function isCheck(): boolean {
+  function isCheckTo(color: PieceColor): boolean {
     // If anyone threatening the king
-    return canIMoveOrBeat(current, opponentsKing.position, squares)
+    return findThreatPosition(color) !== null
   }
 
-  function isMate(): boolean {
+  function isMateTo(color: PieceColor): boolean {
     return [
+      // isCheckTo(color),
       // No one can beat threatening piece
-      !isSquareCanBeBeaten(currentSquare, current.position, opponentsColor, squares),
-      // King cannot escape (every cell can be beaten + castle cell)
-      !kingCanEscape(opponentsKing, squares),
-      // No one can body block king from threat
-      !someoneCanProtectKing(opponentsKing, currentSquare, squares)
+      // !isSquareCanBeBeaten(currentSquare, current.position, opponentsColor, squares),
+      // // King cannot escape (every cell can be beaten + castle cell)
+      // !kingCanEscape(opponentsKing, squares),
+      // // No one can body block king from threat
+      // !someoneCanProtectKing(opponentsKing, currentSquare, squares)
     ].every(condition => condition)
   }
 }
