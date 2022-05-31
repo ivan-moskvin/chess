@@ -332,6 +332,9 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
   const { type, color, coords: { rank, file } } = piece
   const positions = new Set<PiecePosition>()
 
+  /**
+   * TODO: extract movement patterns to somewhere else
+   */
   switch (type) {
     case PieceType.PAWN:
       if (color === PieceColor.BLACK) {
@@ -341,12 +344,34 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
         if (!piece.moved) {
           positions.add(getPositionFromCoords(rank + 2, file))
         }
+
+        // Diagonals
+        if (!!squares[rank + 1][file + 1].piece
+          && squares[rank + 1][file + 1].piece?.color !== color) {
+
+          positions.add(getPositionFromCoords(rank + 1, file + 1))
+        }
+        if (!!squares[rank + 1][file - 1].piece
+          && squares[rank + 1][file - 1].piece?.color !== color) {
+          positions.add(getPositionFromCoords(rank + 1, file - 1))
+        }
       } else {
         if (rank > 1) {
           positions.add(getPositionFromCoords(rank - 1, file))
         }
         if (!piece.moved) {
           positions.add(getPositionFromCoords(rank - 2, file))
+        }
+
+        // Diagonals
+        if (!!squares[rank - 1][file + 1].piece
+          && squares[rank - 1][file + 1].piece?.color !== color) {
+
+          positions.add(getPositionFromCoords(rank - 1, file + 1))
+        }
+        if (!!squares[rank - 1][file - 1].piece
+          && squares[rank - 1][file - 1].piece?.color !== color) {
+          positions.add(getPositionFromCoords(rank - 1, file - 1))
         }
       }
 
@@ -360,10 +385,32 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
       ]) positions.add(pos)
       break
     case PieceType.KNIGHT:
+      // All of L-type moves
+      for (
+        let [ y, x ] of [
+        [ rank - 2, file - 1 ],
+        [ rank - 2, file + 1 ],
+        [ rank - 1, file - 2 ],
+        [ rank - 1, file + 2 ],
+        [ rank + 2, file - 1 ],
+        [ rank + 2, file + 1 ],
+        [ rank + 1, file - 2 ],
+        [ rank + 1, file + 2 ],
+      ]
+        // In boundaries
+        .filter(([ y, x ]) =>
+          y >= 0
+          && y < squares.length
+          && x >= 0
+          && x < squares.length
+        )
+        // No piece or piece has diff color
+        .filter(([ y, x ]) => !squares[y][x]?.piece || squares[y][x].piece.color !== color
+        )
+        ) {
+        positions.add(squares[y][x].position)
+      }
       break
-    // Can do only L-type moves
-    // return (dy === 2 && dx === 1) ||
-    //   (dy === 1 && dx === 2)
     case PieceType.BISHOP:
       for (let pos of [
         ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),

@@ -71,7 +71,6 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
 
   /**
    * TODO
-   * 1. Переделать шах на поиск по вражескому цвету (см. threatPositionToMyKing только цвет оппонента)
    * 2. Доделать траектории всех фигур (кони и пешки)
    * 3. Помним, что для пешек траектория хождения не равна траектории удара
    * 4. Если нашли шах, то диспатчим также траекторию шаха (включая позицию самой угрожающей фигуры)
@@ -123,7 +122,8 @@ export const processGameState = (): AppThunk => (dispatch, getState) => {
 
   function isMateTo(color: PieceColor): boolean {
     return [
-      // isCheckTo(color),
+      // Is check to color
+      isCheckTo(color),
       // No one can beat threatening piece
       // !isSquareCanBeBeaten(currentSquare, current.position, opponentsColor, squares),
       // // King cannot escape (every cell can be beaten + castle cell)
@@ -356,10 +356,10 @@ export const initPieces =
       // dispatch(placePiece({ position: "H1", type: PieceType.ROOK, color: PieceColor.WHITE }))
       //
       // // Place knights
-      // dispatch(placePiece({ position: "B8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "G8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "B1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
-      // dispatch(placePiece({ position: "G1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
+      dispatch(placePiece({ position: "B8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "G8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "B1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
+      dispatch(placePiece({ position: "G1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
       //
       // // Place bishops
       // dispatch(placePiece({ position: "C8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
@@ -386,6 +386,11 @@ export const initPieces =
         position: "E2",
         type: PieceType.PAWN,
         color: PieceColor.WHITE
+      }))
+      dispatch(placePiece({
+        position: "D5",
+        type: PieceType.PAWN,
+        color: PieceColor.BLACK
       }))
 
 
