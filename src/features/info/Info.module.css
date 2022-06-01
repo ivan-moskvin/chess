@@ -1,4 +1,4 @@
-.Info {
+.info {
   position: relative;
   display: flex;
   flex-flow: column;
@@ -16,7 +16,7 @@
 
 }
 
-.Info:before {
+.info:before {
   content: '';
   position: absolute;
   top: 0;
@@ -36,6 +36,23 @@
   line-height: 15px;
 }
 
-.draw {
+.state {
+  height: var(--item-height);
+  margin-left: 5px;
+}
+
+.checkState {
+  color: yellow;
+}
+
+.mateState {
+  color: red;
+}
+
+.drawState {
   color: green;
+}
+
+.pieceIcon {
+  font-size: 2em;
 }

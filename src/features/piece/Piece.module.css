@@ -1,82 +1,104 @@
-.Piece {
-    width: 65px;
-    height: 65px;
-    background-color: transparent;
-    background-repeat: no-repeat;
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-2px, 0, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(4px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-8px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(8px, 0, 0);
+  }
 }
 
-.PieceBlackPawn {
-    background-size: 35px;
-    background-position: center -54px;
-    background-image: url('./images/black-pawn.png');
+.piece {
+  width: 65px;
+  height: 65px;
+  background-color: transparent;
+  background-repeat: no-repeat;
 }
 
-.PieceWhitePawn {
-    background-size: 35px;
-    background-position: center -48px;
-    background-image: url('./images/white-pawn.png');
+.black_pawn {
+  background-size: 35px;
+  background-position: center -54px;
+  background-image: url('./images/black-pawn.png');
 }
 
-.PieceBlackRook {
-    background-size: 42px;
-    background-position: bottom;
-    background-image: url('./images/black-rook.png');
+.white_pawn {
+  background-size: 35px;
+  background-position: center -48px;
+  background-image: url('./images/white-pawn.png');
 }
 
-.PieceWhiteRook {
-    background-size: 42px;
-    background-position: bottom;
-    background-image: url('./images/white-rook.png');
+.black_rook {
+  background-size: 42px;
+  background-position: bottom;
+  background-image: url('./images/black-rook.png');
 }
 
-.PieceBlackBishop {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/black-bishop.png');
+.white_rook {
+  background-size: 42px;
+  background-position: bottom;
+  background-image: url('./images/white-rook.png');
 }
 
-.PieceWhiteBishop {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/white-bishop.png');
+.black_bishop {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/black-bishop.png');
 }
 
-.PieceBlackKnight {
-    background-size: 37px;
-    background-position: bottom;
-    background-image: url('./images/black-knight.png');
+.white_bishop {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/white-bishop.png');
 }
 
-.PieceWhiteKnight {
-    background-size: 34px;
-    background-position: bottom;
-    background-image: url('./images/white-knight.png');
+.black_knight {
+  background-size: 37px;
+  background-position: bottom;
+  background-image: url('./images/black-knight.png');
 }
 
-.PieceBlackQueen {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/black-queen.png');
+.white_knight {
+  background-size: 34px;
+  background-position: bottom;
+  background-image: url('./images/white-knight.png');
 }
 
-.PieceWhiteQueen {
-    background-size: 32px;
-    background-position: bottom;
-    background-image: url('./images/white-queen.png');
+.black_queen {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/black-queen.png');
 }
 
-.PieceBlackKing {
-    background-size: 28px;
-    background-position: bottom;
-    background-image: url('./images/black-king.png');
+.white_queen {
+  background-size: 32px;
+  background-position: bottom;
+  background-image: url('./images/white-queen.png');
 }
 
-.PieceWhiteKing {
-    background-size: 28px;
-    background-position: bottom;
-    background-image: url('./images/white-king.png');
+.black_king {
+  background-size: 28px;
+  background-position: bottom;
+  background-image: url('./images/black-king.png');
 }
 
-.Dragging {
-    opacity: 0.5;
+.white_king {
+  background-size: 28px;
+  background-position: bottom;
+  background-image: url('./images/white-king.png');
+}
+
+.dragging {
+  opacity: 0.5;
+}
+
+.threat {
+  animation: shake .5s cubic-bezier(.36, .07, .19, .97) both;
 }

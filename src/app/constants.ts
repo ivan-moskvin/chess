@@ -1,0 +1,1 @@
+export const CHAR_A_CODE = 97

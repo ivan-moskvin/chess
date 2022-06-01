@@ -11,15 +11,15 @@ export function Board() {
   const ranks = useAppSelector(selectSquares)
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className={styles.BoardWrapper}>
-        <div className={styles.BoardItems}>
-          <section className={styles.Board}>
-            <div className={styles.NamingWrapper}>
+    <DndProvider backend={ HTML5Backend }>
+      <div className={ styles.wrapper }>
+        <div className={ styles.items }>
+          <section className={ styles.board }>
+            <div className={ styles.naming_wrapper }>
               <Naming/>
-              <div className={styles.Squares}>
+              <div className={ styles.squares }>
                 {
-                  ranks.map((rank, i) => <Rank key={i} rank={rank}/>)
+                  ranks.map((rank, i) => <Rank key={ i } rank={ rank }/>)
                 }
               </div>
             </div>

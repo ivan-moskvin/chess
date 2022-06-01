@@ -1,105 +1,63 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { SquareColor } from "../square/enums"
 import { AppThunk, RootState } from "../../app/store"
-import { dragPiece, dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
-import { checkTo, clearCheck, draw, mateTo } from "../game/gameSlice"
-import { traverseInTime } from "../history/historySlice"
-import { IPiece, PiecePosition } from "../piece/types"
-import { ISquare, Squares } from "../square/types"
-import { Board, PossibleMovements } from "./types"
+import { dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
+import { checkTo, clearCheck, draw, hideThreat, mateTo, setThreatTrajectory, showThreat } from "../game/gameSlice"
+import { back, traverseInTime } from "../history/historySlice"
+import { Square, Squares } from "../square/types"
+import { Board, PieceMap, PossibleMovements } from "./types"
 import {
+  buildThreatTrajectory,
   findKingsSquareByColor,
-  findSquare,
-  getAlliedPieces,
+  findThreatPosition,
   getOpponentsColor,
-  kingCanEscape,
-  someoneCanProtectKing
+  isCheckTo,
+  isDraw,
+  isMateTo
 } from "./utils"
+import { getCoordFromPosition, getPieceMapName, getPositionFromCoords } from "../piece/utils"
+import { MovementType } from "./enums"
+import { PieceColor, PieceType } from "../piece/enums"
 import {
-  canIMoveOrBeat,
-  canIMoveToProtect,
-  castlingDirections,
-  getAlliedRooksUnmoved,
-  getCoordFromPosition,
-  getPositionFromCoords,
-  isSquareCanBeBeaten,
-  rookReadyForCastle
-} from "../piece/utils"
-import { MovementType } from "./enums";
-import { PieceColor, PieceType } from "../piece/enums";
+  BOARD_LAST_SQUARE,
+  BOARD_SIZE,
+  BOARD_START_SQUARE,
+  CASTLING_LEFT_KING_POS,
+  CASTLING_LEFT_ROOK_POS,
+  CASTLING_RIGHT_ROOK_POS,
+  THREAT_SHOW_TIME
+} from "./constants"
+import { CHAR_A_CODE } from "../../app/constants"
+import { Check } from "../game/types"
+import { error } from "../notify/utils"
+import { LANG } from "../../i18n/i18n"
 
-/**
- * Processes check/mate situation
- */
-export const processGameState = (): AppThunk => (dispatch, getState) => {
-  const { board: { squares }, piece: { current } } = getState()
-  const currentSquare = findSquare(current.position, squares)
-  const opponentsColor = getOpponentsColor(current.color)
-  const opponentsKing = findKingsSquareByColor(opponentsColor, squares)
-
-  if (isCheck()) {
-    dispatch(checkTo(opponentsColor))
-
-    if (isMate()) {
-      return dispatch(mateTo(opponentsColor))
-    }
-
-    return
-  }
-
-  if (isDraw()) return dispatch(draw())
-
-  return dispatch(clearCheck(current.color))
-
-  function isDraw(): boolean {
-    // If opponent has pieces besides king
-    if (getAlliedPieces(opponentsColor, squares).length > 1) return false
-
-    // If opponent's king has no place to go
-    return !kingCanEscape(opponentsKing, squares)
-  }
-
-  function isCheck(): boolean {
-    // If anyone threatening the king
-    return canIMoveOrBeat(current, opponentsKing.position, squares)
-  }
-
-  function isMate(): boolean {
-    return [
-      // No one can beat threatening piece
-      !isSquareCanBeBeaten(currentSquare, current.position, opponentsColor, squares),
-      // King cannot escape (every cell can be beaten + castle cell)
-      !kingCanEscape(opponentsKing, squares),
-      // No one can body block king from threat
-      !someoneCanProtectKing(opponentsKing, currentSquare, squares)
-    ].every(condition => condition)
-  }
+const initialState: Board = {
+  squares: [],
+  possibleMovements: {},
+  pieceMap: {}
 }
 
 const boardSlice = createSlice({
   name: "field",
-  initialState: {
-    squares: [],
-    activeSquare: "",
-    possibleMovements: {}
-  } as Board,
+  initialState,
   reducers: {
     initSquares: (state: Board) => {
       const squares =
-        new Array(8)
+        new Array(BOARD_SIZE)
           .fill(null)
           .map(() =>
-            new Array(8)
+            new Array(BOARD_SIZE)
               .fill(null)
-              .map(() => ({} as ISquare)))
+              .map(() => ({} as Square)))
 
       const n = squares.length
       const m = squares[0].length
 
-      for (let i = 0, rowCount = 8; i < n; i++, rowCount--) {
+      for (let i = BOARD_START_SQUARE, rowCount = BOARD_SIZE; i < n; i++, rowCount--) {
         const isEvenRow = i % 2 === 0
 
-        for (let j = 0, charCode = 97; j < m; j++, charCode++) {
+        for (let j = BOARD_START_SQUARE, charCode = CHAR_A_CODE; j < m; j++, charCode++) {
           const name = String.fromCharCode(charCode).toUpperCase() + rowCount
           if (!isEvenRow) {
             squares[i][j].color = j % 2 === 0 ? SquareColor.BLACK : SquareColor.WHITE
@@ -118,111 +76,87 @@ const boardSlice = createSlice({
 
       state.squares = squares
     },
+    setPossibleMovements: (state, action: PayloadAction<PossibleMovements>) => {
+      state.possibleMovements = action.payload
+    }
   }, extraReducers: (builder) => {
     builder.addCase(placePiece, (state, action) => {
       const { position, type, color } = action.payload
       const [ rank, file ] = getCoordFromPosition(position)
 
-      state.squares[rank][file].piece = {
+      const piece = {
         type,
         color,
         position: position.toUpperCase(),
-        moved: false
+        moved: false,
+        coords: { rank, file }
       }
+
+      state.pieceMap[getPieceMapName(piece)] = piece
+      state.squares[rank][file].piece = piece
     })
     builder.addCase(modifyPieceType, (state, action) => {
-      const { newType, piece: { position } } = action.payload
+      const { newType, piece } = action.payload
+      const { position } = piece
       const [ rank, file ] = getCoordFromPosition(position)
+      const mapPiece = state.pieceMap[getPieceMapName(piece)]
 
-      state.squares[rank][file].piece!.type = newType
+      mapPiece.type = newType
+
+      state.squares[rank][file].piece = mapPiece
+      state.pieceMap[getPieceMapName(mapPiece)] = mapPiece
     })
-    builder
-      .addCase(dragPiece, (state: Board, action: PayloadAction<IPiece>) => {
-        const { squares } = state
-        const { position } = action.payload
-        const square = findSquare(position, squares)
-
-        // If piece is no longer at the start position
-        if (!square.piece) return
-
-        const { piece } = square
-
-        state.activeSquare = position
-
-
-        // Get possible movements
-        for (let i = 0; i < squares.length; i++) {
-          for (let j = 0; j < squares[0].length; j++) {
-            if (canIMoveOrBeat(piece, squares[i][j].position, squares)
-              || canIMoveToProtect(piece, squares[i][j].position, squares)) {
-              const position: PiecePosition = squares[i][j].position
-              state.possibleMovements[position] = MovementType.REGULAR
-            }
-          }
-        }
-
-        // Castling
-        if (piece.type === PieceType.KING) {
-          const kingCastlingDirections = castlingDirections(piece, squares);
-
-          // If no castling directions available
-          if (kingCastlingDirections.every(d => !d)) return
-
-          // Check allied rooks
-          for (let rook of getAlliedRooksUnmoved(piece, squares)) {
-            if (rookReadyForCastle(rook, squares)) {
-              const [ rank, file ] = getCoordFromPosition(rook.position)
-              if (file === 0 && !kingCastlingDirections[0]) continue
-              if (file === 7 && !kingCastlingDirections[1]) continue
-              const availableFile = file === 0 ? getPositionFromCoords(rank, 2) : getPositionFromCoords(rank, 6)
-
-              state.possibleMovements[availableFile] = MovementType.CASTLE
-            }
-          }
-        }
-      })
     // Clear active square and possible movements
     builder.addCase(dropPiece, (state) => {
-      state.activeSquare = ""
       state.possibleMovements = {}
     })
     // Make move
     builder.addCase(movePieceFromTo, (state, action) => {
       // Clear active square and possible movements
       state.possibleMovements = {}
-      state.activeSquare = ""
 
       const { from, to, piece, type } = action.payload
 
       const [ rankFrom, fileFrom ] = getCoordFromPosition(from)
       const [ rankTo, fileTo ] = getCoordFromPosition(to)
 
+      const mapPiece = state.pieceMap[getPieceMapName(piece)]
+      mapPiece.moved = true
+      mapPiece.coords = { rank: rankTo, file: fileTo }
+      mapPiece.position = getPositionFromCoords(rankTo, fileTo)
+
       delete state.squares[rankFrom][fileFrom].piece
+      state.squares[rankTo][fileTo].piece = mapPiece
 
-      state.squares[rankTo][fileTo].piece = {
-        ...piece,
-        moved: true
-      }
-
+      // Castling
       if (type === MovementType.CASTLE) {
-        const rook = state.squares[rankTo][fileTo === 2 ? 0 : 7].piece
+        const rook = state.squares[rankTo][fileTo === CASTLING_LEFT_KING_POS ? BOARD_START_SQUARE : BOARD_LAST_SQUARE].piece
+        const mapRook = state.pieceMap[getPieceMapName(rook)]
 
-        if (fileTo === 2) {
-          delete state.squares[rankTo][0].piece
-          state.squares[rankTo][3].piece = rook
+        if (fileTo === CASTLING_LEFT_KING_POS) {
+          mapRook.moved = true
+          mapRook.coords = { rank: rankTo, file: CASTLING_LEFT_ROOK_POS }
+          mapRook.position = getPositionFromCoords(rankTo, CASTLING_LEFT_ROOK_POS)
+
+          delete state.squares[rankTo][BOARD_START_SQUARE].piece
+          state.squares[rankTo][CASTLING_LEFT_ROOK_POS].piece = mapRook
 
           return
         }
 
-        delete state.squares[rankTo][7].piece
-        state.squares[rankTo][5].piece = rook
+        mapRook.moved = true
+        mapRook.coords = { rank: rankTo, file: CASTLING_RIGHT_ROOK_POS }
+        mapRook.position = getPositionFromCoords(rankTo, CASTLING_RIGHT_ROOK_POS)
+
+        delete state.squares[rankTo][BOARD_LAST_SQUARE].piece
+        state.squares[rankTo][CASTLING_RIGHT_ROOK_POS].piece = mapRook
 
         return
 
       }
     })
-    builder.addCase(checkTo, (state, action) => {
-      const kingSquare = findKingsSquareByColor(action.payload, state.squares)
+    builder.addCase(checkTo, (state, action: PayloadAction<Check>) => {
+      const kingSquare = findKingsSquareByColor(action.payload.to, state.squares)
       kingSquare.piece.underCheck = true
     })
     builder.addCase(clearCheck, (state, action) => {
@@ -278,10 +212,56 @@ export const initPieces =
       dispatch(placePiece({ position: "E8", type: PieceType.KING, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
     }
-export const { initSquares } = boardSlice.actions
+
+
+/**
+ * Processes check/mate situation
+ */
+export const processGameState = (): AppThunk => (dispatch, getState) => {
+  const { board: { squares }, piece: { current } } = getState()
+  const opponentsColor = getOpponentsColor(current.color)
+  const opponentsKingsSquare = findKingsSquareByColor(opponentsColor, squares)
+  const threatPositionToMyKing = findThreatPosition(current.color, squares)
+
+  // If my turn causes check to my king, travel back in time
+  if (threatPositionToMyKing) {
+
+    // Rollback move
+    dispatch(back())
+
+    // Show error
+    error(LANG.DISPOSING_KING_TO_THREAT)
+
+    // Highlight threat
+    dispatch(showThreat(threatPositionToMyKing))
+
+    // Hide threat
+    setTimeout(() => {
+      dispatch(hideThreat())
+    }, THREAT_SHOW_TIME)
+  }
+
+  if (isCheckTo(opponentsColor, squares)) {
+    const threatTrajectory = buildThreatTrajectory(opponentsColor, squares)
+    dispatch(checkTo({ to: opponentsColor }))
+    dispatch(setThreatTrajectory(threatTrajectory))
+
+    if (isMateTo(opponentsColor, opponentsKingsSquare, threatTrajectory, squares)) {
+      return dispatch(mateTo(opponentsColor))
+    }
+
+    return
+  }
+
+  if (isDraw(opponentsColor, opponentsKingsSquare, squares)) return dispatch(draw())
+
+  return dispatch(clearCheck(current.color))
+}
+
+export const { initSquares, setPossibleMovements } = boardSlice.actions
 
 export const selectSquares = (state: RootState): Squares => state.board.squares
-export const selectActiveSquare = (state: RootState): string => state.board.activeSquare
 export const selectPossibleMovements = (state: RootState): PossibleMovements => state.board.possibleMovements
+export const selectPieceMap = (state: RootState): PieceMap => state.board.pieceMap
 
 export default boardSlice.reducer

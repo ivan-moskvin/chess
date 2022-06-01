@@ -1,4 +1,4 @@
-.History {
+.history {
   --item-size: 20px;
   --item-height: 24px;
   --piece-size: 32px;
@@ -59,22 +59,4 @@
   align-items: center;
   font-size: var(--font-size);
   font-family: monospace;
-}
-
-.state {
-  height: var(--item-height);
-  margin-left: 5px;
-  text-transform: lowercase;
-}
-
-.checkState {
-  color: yellow;
-}
-
-.mateState {
-  color: red;
-}
-
-.drawState {
-  color: green;
 }

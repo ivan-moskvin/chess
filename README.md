@@ -21,17 +21,20 @@ https://ivan-moskvin.github.io/chess/
 - ✅ i18n (translate and auto detect)
 - ✅ Restrict moves that put king under threat
 - ✅ Castling
+- ✅ Notification system (putting king under threat)
+- ☑️ Notification overlays (check/mate/draw)
+- ☑️ Style notifications
 - ☑️ Tests
     - ☑️ Smoke
     - ☑️ Actions
 - ☑️ Analytics
-- ☑️ Notification system (notifies, check/mate overlay)
 - ☑️ Persistence
 - ☑️ Optimize graphics
 
 ## Ideas
 
-- O(n²) → O(n) obstacles search optimization
+- ✅ O(n²) → O(n) obstacles search optimization
+- Restricted moves highlighting
 - Pieces beaten / pieces list collections for allies search optimization
 - Beating animation
 - Clock

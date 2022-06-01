@@ -1,9 +1,9 @@
-export interface ISquare {
+export interface Square {
   color: SquareColor,
-  piece?: IPiece,
+  piece?: Piece,
   position: string,
   active: boolean,
   coords: [ y: number, x: number ]
 }
 
-export type Squares = ISquare[][]
+export type Squares = Square[][]
