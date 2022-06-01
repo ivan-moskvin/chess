@@ -16,12 +16,20 @@ const historySlice = createSlice({
   }
 })
 
-
+/**
+ * Takes history snapshot
+ * @param name
+ */
 export const historySnapshot = (name: string): AppThunk => (dispatch, getState) => {
   if (name === "init" && getState().history.length === 1) return
 
   dispatch(historySlice.actions.push({ ...getState(), name }))
 }
+
+/**
+ * Traverses in time to move
+ * @param to
+ */
 export const traverseToMove = (to: string): AppThunk => (dispatch, getState) => {
   let index = 0
   const { history } = getState()

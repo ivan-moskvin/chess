@@ -21,7 +21,8 @@ export const History = () => {
     <section className={ styles.history }>
       <h3 className={ styles.heading }>{ t(LANG.MOVES) }:</h3>
       <ul className={ styles.list } ref={ listRef }>
-        { history.map((historyItem) => <HistoryItem key={ historyItem.name } historyItem={ historyItem }/>) }
+        { history.map((historyItem, i) => <HistoryItem key={ historyItem.name } historyItem={ historyItem }
+                                                       last={ i === history.length - 1 }/>) }
       </ul>
     </section>
   )

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.16] - 2022-06-01
+
+### Added
+
+- Putting king under threat notification
+
 ## [0.0.15] - 2022-05-20
 
 ### Added

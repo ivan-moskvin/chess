@@ -27,7 +27,6 @@ export const Info = () => {
         { draw && <h2
             className={ classNames([ styles.drawState, styles.state ]) }>{ t(LANG.DRAW) }</h2> }
         { !mateTo && !draw && !check && <p>{ t(LANG.TURN) }: <strong>{ t(turn) }</strong></p> }
-        { draw && <h2 className={ styles.draw }>{ t(LANG.DRAW) }</h2> }
         { <History/> }
       </div>
 

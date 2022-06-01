@@ -1,6 +1,6 @@
 import { Square, Squares } from "../square/types"
 import { Piece, PiecePosition } from "../piece/types"
-import { canIMove, canIMoveOrBeat, getCoordFromPosition, getPositionFromCoords } from "../piece/utils"
+import { filterKingsMoves, getCoordFromPosition, getPositionFromCoords } from "../piece/utils"
 import { PieceColor, PieceType } from "../piece/enums"
 import { TrajectoryDirection } from "./enums"
 
@@ -46,30 +46,6 @@ export const findKingsSquareByColor = (color: PieceColor, squares: Squares): Squ
   }
 
   return {} as Square
-}
-
-/**
- * Checks if king has place to run
- * @param kingSquare
- * @param squares
- */
-export const kingCanEscape = (kingSquare: Square, squares: Squares): boolean => {
-  const [ y, x ] = kingSquare.coords
-  const positions = [
-    [ y - 1, x - 1 ],
-    [ y - 1, x ],
-    [ y - 1, x + 1 ],
-    [ y, x - 1 ],
-    [ y, x + 1 ],
-    [ y + 1, x - 1 ],
-    [ y + 1, x ],
-    [ y + 1, x + 1 ],
-  ].filter(([ y, x ]) => !!squares[y] && squares[y][x])
-
-  return positions
-    .some(([ y, x ]) => {
-      return canIMoveOrBeat(kingSquare.piece!, squares[y][x].position, squares)
-    })
 }
 
 /**
@@ -164,77 +140,26 @@ export const getOpponentsPieces = (allyColor: PieceColor, squares: Squares): Pie
 }
 
 /**
- * Checks if allied king is disposed to threat by leaving position
- */
-export const disposingKingToThreat = (protectingPosition: PiecePosition, color: PieceColor, squares: Squares): boolean => {
-  const opponentsPieces = getOpponentsPieces(color, squares)
-  const alliedKingsSquare = findKingsSquareByColor(color, squares)
-
-  return opponentsPieces.some((opponentsPiece) => {
-    return canIMoveOrBeat(opponentsPiece, alliedKingsSquare.position, squares, protectingPosition)
-  })
-}
-
-/**
- * Checks if someone can protect king
- */
-export const someoneCanProtectKing = (kingSquare: Square, from: Square, squares: Squares): boolean => {
-  // Someone can go to any cell between king and threat
-  const [ y1, x1 ] = getCoordFromPosition(kingSquare.position)
-  const [ y0, x0 ] = getCoordFromPosition(from.position)
-  const alliedPieces = getAlliedPieces(kingSquare.piece!.color, squares)
-
-  // No one can protect from pawn or knight
-  if ([ PieceType.KNIGHT, PieceType.PAWN ].includes(from.piece?.type!)) return false
-
-  // No one can protect from contacting piece
-  if (Math.abs(y0 - y1) === 1 || Math.abs(x0 - x1) === 1) return false
-
-  // West/east
-  if (y0 === y1) {
-    for (let i = Math.min(x0, x1) + 1; i < Math.max(x0, x1); i++) {
-      if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(y0, i), squares, getPositionFromCoords(i, x0)))) return true
-    }
-  }
-
-  // North/south
-  if (x0 === x1) {
-    // Check all vertical pieces in between start and end
-    for (let i = Math.min(y0, y1) + 1; i < Math.max(y0, y1); i++) {
-      if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, x0), squares, getPositionFromCoords(i, x0)))) return true
-    }
-  }
-
-  // Diagonals
-  if (y1 !== y0 && x1 !== x0) {
-    // Check north-west or south-east
-    if ((x1 < x0 && y1 < y0) || (x1 > x0 && y1 > y0)) {
-      for (let i = Math.min(y0, y1) + 1, j = Math.min(x0, x1) + 1; i < Math.max(y0, y1) && j < Math.max(x0, x1); i++, j++) {
-        if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, j), squares, getPositionFromCoords(i, j)))) return true
-      }
-    }
-
-    // Check south-west and north-east
-    if ((x1 < x0 && y1 > y0) || (x1 > x0 && y1 < y0)) {
-      // console.log(alliedPieces)
-      for (let i = Math.max(y0, y1) - 1, j = Math.min(x0, x1) + 1; i > Math.min(y0, y1) && j < Math.max(x0, x1); i--, j++) {
-        if (alliedPieces.some((piece) => canIMove(piece, getPositionFromCoords(i, j), squares, getPositionFromCoords(i, j)))) return true
-      }
-    }
-  }
-
-  return false
-}
-
-/**
  * Builds trajectory from starting point and direction
  * @param start
  * @param direction
  * @param color
  * @param squares
- * @param ignorePosition
+ * @param protectingAlly
  */
-export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirection, color: PieceColor, squares: Squares, ignorePosition?: PiecePosition): PiecePosition[] => {
+export const buildTrajectory = ({
+                                  start,
+                                  direction,
+                                  color,
+                                  squares,
+                                  protectingAlly = false
+                                }: {
+  start: PiecePosition,
+  direction: TrajectoryDirection,
+  color: PieceColor,
+  squares: Squares,
+  protectingAlly?: boolean
+}): PiecePosition[] => {
   let [ currentRank, currentFile ] = getCoordFromPosition(start)
   let positions: PiecePosition[] = []
   let opponentBeaten = false
@@ -243,10 +168,6 @@ export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirec
   let ignoreY: number, ignoreX: number
 
   const [ startY, startX ] = [ currentRank, currentFile ]
-
-  if (ignorePosition) {
-    [ ignoreY, ignoreX ] = getCoordFromPosition(ignorePosition)
-  }
 
   switch (direction) {
     case TrajectoryDirection.NORTH:
@@ -310,7 +231,12 @@ export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirec
     currentFile += horizontalPointer
     currentRank += verticalPointer
     if (!isInBoundaries(currentRank, currentFile)) break
-    if (isHittingAlly(currentRank, currentFile)) continue
+    if (isHittingAlly(currentRank, currentFile)) {
+      if (!protectingAlly) break
+
+      // Count hitting ally as opponent hit
+      opponentBeaten = true
+    }
 
     positions.push(squares[currentRank][currentFile].position)
 
@@ -325,10 +251,11 @@ export const buildTrajectory = (start: PiecePosition, direction: TrajectoryDirec
 /**
  * Builds possible movements
  * @param piece
- * @param ignorePosition
+ * @param protectingAlly
  * @param squares
+ * @param ignoreKing
  */
-export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePosition?: PiecePosition): Set<PiecePosition> => {
+export const buildPossibleMovements = (piece: Piece, squares: Squares, protectingAlly: boolean = false, ignoreKing: boolean = true): Set<PiecePosition> => {
   const { type, color, coords: { rank, file } } = piece
   const positions = new Set<PiecePosition>()
 
@@ -346,13 +273,13 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
         }
 
         // Diagonals
-        if (!!squares[rank + 1][file + 1].piece
-          && squares[rank + 1][file + 1].piece?.color !== color) {
+        if (!!squares[rank + 1][file + 1]?.piece
+          && (squares[rank + 1][file + 1].piece?.color !== color || protectingAlly)) {
 
           positions.add(getPositionFromCoords(rank + 1, file + 1))
         }
-        if (!!squares[rank + 1][file - 1].piece
-          && squares[rank + 1][file - 1].piece?.color !== color) {
+        if (!!squares[rank + 1][file - 1]?.piece
+          && (squares[rank + 1][file - 1].piece?.color !== color || protectingAlly)) {
           positions.add(getPositionFromCoords(rank + 1, file - 1))
         }
       } else {
@@ -364,13 +291,13 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
         }
 
         // Diagonals
-        if (!!squares[rank - 1][file + 1].piece
-          && squares[rank - 1][file + 1].piece?.color !== color) {
+        if (!!squares[rank - 1][file + 1]?.piece
+          && (squares[rank - 1][file + 1].piece?.color !== color || protectingAlly)) {
 
           positions.add(getPositionFromCoords(rank - 1, file + 1))
         }
-        if (!!squares[rank - 1][file - 1].piece
-          && squares[rank - 1][file - 1].piece?.color !== color) {
+        if (!!squares[rank - 1][file - 1]?.piece
+          && (squares[rank - 1][file - 1].piece?.color !== color || protectingAlly)) {
           positions.add(getPositionFromCoords(rank - 1, file - 1))
         }
       }
@@ -378,10 +305,34 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
       break
     case PieceType.ROOK:
       for (let pos of [
-        ...buildTrajectory(piece.position, TrajectoryDirection.NORTH, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTH, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.WEST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.EAST, color, squares, ignorePosition),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.NORTH,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.SOUTH,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.WEST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.EAST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
       ]) positions.add(pos)
       break
     case PieceType.KNIGHT:
@@ -405,7 +356,7 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
           && x < squares.length
         )
         // No piece or piece has diff color
-        .filter(([ y, x ]) => !squares[y][x]?.piece || squares[y][x].piece.color !== color
+        .filter(([ y, x ]) => !squares[y][x]?.piece || squares[y][x].piece.color !== color || protectingAlly
         )
         ) {
         positions.add(squares[y][x].position)
@@ -413,22 +364,94 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
       break
     case PieceType.BISHOP:
       for (let pos of [
-        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHEAST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.NORTHWEST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.NORTHEAST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.SOUTHWEST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.SOUTHEAST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        })
       ]) positions.add(pos)
       break
     case PieceType.QUEEN:
       for (let pos of [
-        ...buildTrajectory(piece.position, TrajectoryDirection.NORTH, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTH, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.WEST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.EAST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHWEST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.NORTHEAST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHWEST, color, squares, ignorePosition),
-        ...buildTrajectory(piece.position, TrajectoryDirection.SOUTHEAST, color, squares, ignorePosition)
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.NORTH,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.SOUTH,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.WEST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.EAST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.NORTHWEST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.NORTHEAST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.SOUTHWEST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        }),
+        ...buildTrajectory({
+          start: piece.position,
+          direction: TrajectoryDirection.SOUTHEAST,
+          color: color,
+          squares: squares,
+          protectingAlly
+        })
       ]) positions.add(pos)
       break
     case PieceType.KING:
@@ -444,12 +467,170 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, ignorePos
       ]
         .filter(([ y, x ]) => y >= 0 && y < 8 && x > 0 && x < 8)
         .forEach(([ y, x ]) => {
-          if (!squares[y][x]?.piece || squares[y][x].piece.color !== color) {
+          if (!squares[y][x]?.piece || squares[y][x].piece.color !== color || protectingAlly) {
             positions.add(getPositionFromCoords(y, x))
           }
         })
       break
   }
 
-  return positions
+  // Do not exclude king from beating position if necessary
+  if (!ignoreKing) return positions
+
+  // Cannot beat king anyway
+  return new Set([ ...positions ].filter((pos) => {
+    const [ y, x ] = getCoordFromPosition(pos)
+    return squares[y][x]?.piece?.type !== PieceType.KING
+  }))
+}
+
+/**
+ * Checks if it's draw
+ * @param opponentsColor
+ * @param opponentsKing
+ * @param squares
+ */
+export const isDraw = (opponentsColor: PieceColor, opponentsKing: Square, squares: Squares): boolean => {
+  // If opponent has pieces besides king
+  if (getAlliedPieces(opponentsColor, squares).length > 1) return false
+
+  const kingsMoves = filterKingsMoves(buildPossibleMovements(opponentsKing.piece, squares), opponentsColor, squares)
+
+  // If opponent's king has no place to go
+  return kingsMoves.size === 0
+}
+
+/**
+ * Finds threat's position
+ * @param to
+ * @param squares
+ */
+export const findThreatPosition = (to: PieceColor, squares: Squares): PiecePosition | null => {
+  const allyKing = findKingsSquareByColor(to, squares)
+  const opponentsPieces = getOpponentsPieces(to, squares)
+
+  for (let piece of opponentsPieces) {
+    const moves = buildPossibleMovements(piece, squares, false, false)
+    if (moves.has(allyKing.position)) {
+      return piece.position
+    }
+  }
+
+  return null
+}
+
+/**
+ * Finds threat trajectory
+ * @param to
+ * @param squares
+ */
+export const buildThreatTrajectory = (to: PieceColor, squares: Squares): PiecePosition[] => {
+  const allyKing = findKingsSquareByColor(to, squares)
+  const [ y1, x1 ] = getCoordFromPosition(allyKing.position)
+  const opponentsColor = getOpponentsColor(allyKing.color)
+  const opponentsPieces = getOpponentsPieces(to, squares).filter((piece) => [
+    PieceType.QUEEN,
+    PieceType.ROOK,
+    PieceType.BISHOP
+  ].includes(piece.type))
+
+  const trajectoryBuilder = (start: PiecePosition, direction: TrajectoryDirection): PiecePosition[] => {
+    const trajectory = buildTrajectory({ start: start, direction: direction, color: opponentsColor, squares: squares })
+    return [ start ].concat(trajectory.slice(0, trajectory.length))
+  }
+
+  const trajectory: PiecePosition[] = []
+
+  for (let piece of opponentsPieces) {
+    const moves = buildPossibleMovements(piece, squares, false, false)
+    
+    if (moves.has(allyKing.position)) {
+      const [ y0, x0 ] = getCoordFromPosition(piece.position)
+
+      // Horizontal
+      if (y0 === y1) {
+        // East
+        if (x0 < x1) {
+          return trajectoryBuilder(piece.position, TrajectoryDirection.EAST)
+        }
+
+        // West
+        return trajectoryBuilder(piece.position, TrajectoryDirection.WEST)
+      }
+
+      // Vertical
+      if (x0 === x1) {
+
+        // South
+        if (y0 < y1) {
+          return trajectoryBuilder(piece.position, TrajectoryDirection.SOUTH)
+        }
+
+        // North
+        return trajectoryBuilder(piece.position, TrajectoryDirection.NORTH)
+      }
+
+
+      // Diagonals
+
+      // North-west
+      if (x0 > x1 && y0 > y1) {
+        return trajectoryBuilder(piece.position, TrajectoryDirection.NORTHWEST)
+      }
+
+      // South-east
+      if (x0 < x1 && y0 < y1) {
+        return trajectoryBuilder(piece.position, TrajectoryDirection.SOUTHEAST)
+      }
+
+      // South-west
+      if (x0 > x1 && y0 < y1) {
+        return trajectoryBuilder(piece.position, TrajectoryDirection.SOUTHWEST)
+      }
+
+      // North-west
+      if (x0 < x1 && y0 > y1) {
+        return trajectoryBuilder(piece.position, TrajectoryDirection.NORTHEAST)
+      }
+
+    }
+  }
+
+  return trajectory
+}
+
+/**
+ * Checks if it's check to side with color
+ * @param color
+ * @param squares
+ */
+export const isCheckTo = (color: PieceColor, squares: Squares): boolean => {
+  // If anyone threatening the king
+  return findThreatPosition(color, squares) !== null
+}
+
+/**
+ * Checks if it's mate to side with color
+ * @param color
+ * @param king
+ * @param threatTrajectory
+ * @param squares
+ */
+export const isMateTo = (color: PieceColor, king: Square, threatTrajectory: PiecePosition[], squares: Squares): boolean => {
+  const alliedPieces = getAlliedPieces(color, squares).filter(piece => piece.type !== PieceType.KING)
+  let possibleMovements = new Set<PiecePosition>()
+  let kingsPossibleMovements = buildPossibleMovements(king.piece, squares)
+  kingsPossibleMovements = filterKingsMoves(kingsPossibleMovements, color, squares)
+
+  // Allied pieces possible moves
+  for (let piece of alliedPieces) {
+    [ ...buildPossibleMovements(piece, squares) ].forEach((move) => possibleMovements.add(move))
+  }
+
+  return [
+    // No one can beat threatening piece or block from threat
+    !threatTrajectory.some((pos) => possibleMovements.has(pos)),
+    // King cannot escape (every cell can be beaten + castle cell)
+    kingsPossibleMovements.size === 0
+  ].every(condition => condition)
 }

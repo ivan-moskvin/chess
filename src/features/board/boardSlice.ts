@@ -1,29 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { SquareColor } from "../square/enums"
 import { AppThunk, RootState } from "../../app/store"
-import { dragPiece, dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
-import { checkTo, clearCheck, draw, hideThreat, mateTo, showThreat } from "../game/gameSlice"
+import { dropPiece, modifyPieceType, movePieceFromTo, placePiece } from "../piece/pieceSlice"
+import { checkTo, clearCheck, draw, hideThreat, mateTo, setThreatTrajectory, showThreat } from "../game/gameSlice"
 import { back, traverseInTime } from "../history/historySlice"
-import { Piece, PiecePosition } from "../piece/types"
 import { Square, Squares } from "../square/types"
 import { Board, PieceMap, PossibleMovements } from "./types"
 import {
-  buildPossibleMovements,
+  buildThreatTrajectory,
   findKingsSquareByColor,
-  findSquare,
-  getAlliedPieces,
+  findThreatPosition,
   getOpponentsColor,
-  getOpponentsPieces,
-  kingCanEscape
+  isCheckTo,
+  isDraw,
+  isMateTo
 } from "./utils"
-import {
-  castlingDirections,
-  getAlliedRooksUnmoved,
-  getCoordFromPosition,
-  getPieceMapName,
-  getPositionFromCoords,
-  rookReadyForCastle
-} from "../piece/utils"
+import { getCoordFromPosition, getPieceMapName, getPositionFromCoords } from "../piece/utils"
 import { MovementType } from "./enums"
 import { PieceColor, PieceType } from "../piece/enums"
 import {
@@ -32,7 +24,6 @@ import {
   BOARD_START_SQUARE,
   CASTLING_LEFT_KING_POS,
   CASTLING_LEFT_ROOK_POS,
-  CASTLING_RIGHT_KING_POS,
   CASTLING_RIGHT_ROOK_POS,
   THREAT_SHOW_TIME
 } from "./constants"
@@ -41,106 +32,8 @@ import { Check } from "../game/types"
 import { error } from "../notify/utils"
 import { LANG } from "../../i18n/i18n"
 
-/**
- * Processes check/mate situation
- */
-export const processGameState = (): AppThunk => (dispatch, getState) => {
-  const { board: { squares }, piece: { current } } = getState()
-  const currentSquare = findSquare(current.position, squares)
-  const opponentsColor = getOpponentsColor(current.color)
-  const opponentsKing = findKingsSquareByColor(opponentsColor, squares)
-  const threatPositionToMyKing = findThreatPosition(current.color)
-
-  // If my turn causes check to my king, travel back in time
-  if (threatPositionToMyKing) {
-
-    // Rollback move
-    dispatch(back())
-
-    // Show error
-    error(LANG.DISPOSING_KING_TO_THREAT)
-
-    // Highlight threat
-    dispatch(showThreat(threatPositionToMyKing))
-
-    // Hide threat
-    setTimeout(() => {
-      dispatch(hideThreat())
-    }, THREAT_SHOW_TIME)
-  }
-
-  /**
-   * TODO
-   * 5. Строим possibleMovements для любой фигуры:
-   *  5.1 Строим все возможные ходы
-   *  5.2 Оставляем только те, которые находятся на траектории шаха
-   *  (можно защитить собой или срубить угрожающую фигуру)
-   */
-
-  if (isCheckTo(opponentsColor)) {
-    dispatch(checkTo({ to: opponentsColor }))
-
-    /**
-     * 4. Если нашли шах, то диспатчим также траекторию шаха (включая позицию самой угрожающей фигуры)
-     */
-
-    //dispatch(setThreatTrajectory(findThreatTrajectory()))
-
-    if (isMateTo(opponentsColor)) {
-      return dispatch(mateTo(opponentsColor))
-    }
-
-    return
-  }
-
-  if (isDraw()) return dispatch(draw())
-
-  return dispatch(clearCheck(current.color))
-
-  function isDraw(): boolean {
-    // If opponent has pieces besides king
-    if (getAlliedPieces(opponentsColor, squares).length > 1) return false
-
-    // If opponent's king has no place to go
-    return !kingCanEscape(opponentsKing, squares)
-  }
-
-  function findThreatPosition(to: PieceColor): PiecePosition | null {
-    const allyKing = findKingsSquareByColor(to, squares)
-    const opponentsPieces = getOpponentsPieces(to, squares)
-
-    for (let piece of opponentsPieces) {
-      const moves = buildPossibleMovements(piece, squares)
-      if (moves.has(allyKing.position)) {
-        return piece.position
-      }
-    }
-
-    return null
-  }
-
-  function isCheckTo(color: PieceColor): boolean {
-    // If anyone threatening the king
-    return findThreatPosition(color) !== null
-  }
-
-  function isMateTo(color: PieceColor): boolean {
-    return [
-      // Is check to color
-      isCheckTo(color),
-      // No one can beat threatening piece
-      // !isSquareCanBeBeaten(currentSquare, current.position, opponentsColor, squares),
-      // // King cannot escape (every cell can be beaten + castle cell)
-      // !kingCanEscape(opponentsKing, squares),
-      // // No one can body block king from threat
-      // !someoneCanProtectKing(opponentsKing, currentSquare, squares)
-    ].every(condition => condition)
-  }
-}
-
 const initialState: Board = {
   squares: [],
-  activeSquare: "",
   possibleMovements: {},
   pieceMap: {}
 }
@@ -183,6 +76,9 @@ const boardSlice = createSlice({
 
       state.squares = squares
     },
+    setPossibleMovements: (state, action: PayloadAction<PossibleMovements>) => {
+      state.possibleMovements = action.payload
+    }
   }, extraReducers: (builder) => {
     builder.addCase(placePiece, (state, action) => {
       const { position, type, color } = action.payload
@@ -210,77 +106,14 @@ const boardSlice = createSlice({
       state.squares[rank][file].piece = mapPiece
       state.pieceMap[getPieceMapName(mapPiece)] = mapPiece
     })
-    builder
-      .addCase(dragPiece, (state: Board, action: PayloadAction<Piece>) => {
-        const { squares } = state
-        const piece = action.payload
-        const { position, color, coords: { rank, file } } = piece
-
-        // If piece is no longer at the start position
-        if (!piece) return
-
-        state.activeSquare = position
-
-
-        const possibleMovements = buildPossibleMovements(piece, squares)
-
-        // If dragging king
-        if (piece.type === PieceType.KING) {
-          // Find enemy rooks, bishops, queens
-          const threateningPieces = getOpponentsPieces(color, squares)
-            .filter(({ type }) => [ PieceType.ROOK, PieceType.BISHOP, PieceType.QUEEN ].includes(type))
-
-          // Build their trajectories
-          const threateningMovements = threateningPieces.reduce<Set<PiecePosition>>((acc, cur) => {
-            for (let pos of buildPossibleMovements(cur, squares)) {
-              acc.add(pos!)
-            }
-            return acc
-          }, new Set())
-
-          // Filter your trajectories excluding pieces in enemy trajectories
-          for (let threateningMove of Array.from(threateningMovements)) {
-            if (possibleMovements.has(threateningMove)) {
-              possibleMovements.delete(threateningMove)
-            }
-          }
-        }
-
-        // Build possible movements
-        for (let pos of possibleMovements) {
-          state.possibleMovements[pos] = MovementType.REGULAR
-        }
-
-        // Castling
-        if (piece.type === PieceType.KING) {
-          const kingCastlingDirections = castlingDirections(piece, squares)
-
-          // If no castling directions available
-          if (kingCastlingDirections.every(d => !d)) return
-
-          // Check allied rooks
-          for (let rook of getAlliedRooksUnmoved(piece, squares)) {
-            if (rookReadyForCastle(rook, squares)) {
-              const [ rank, file ] = getCoordFromPosition(rook.position)
-              if (file === BOARD_START_SQUARE && !kingCastlingDirections[BOARD_START_SQUARE]) continue
-              if (file === CASTLING_LEFT_ROOK_POS && !kingCastlingDirections[1]) continue
-              const availableFile = file === BOARD_START_SQUARE ? getPositionFromCoords(rank, CASTLING_LEFT_KING_POS) : getPositionFromCoords(rank, CASTLING_RIGHT_KING_POS)
-
-              state.possibleMovements[availableFile] = MovementType.CASTLE
-            }
-          }
-        }
-      })
     // Clear active square and possible movements
     builder.addCase(dropPiece, (state) => {
-      state.activeSquare = ""
       state.possibleMovements = {}
     })
     // Make move
     builder.addCase(movePieceFromTo, (state, action) => {
       // Clear active square and possible movements
       state.possibleMovements = {}
-      state.activeSquare = ""
 
       const { from, to, piece, type } = action.payload
 
@@ -338,75 +171,96 @@ const boardSlice = createSlice({
 
 export const initPieces =
   (): AppThunk =>
-    (dispatch, getState) => {
+    (dispatch) => {
       // Place pawns
-      // for (let i = 0, charCode = 97; i < 8; i++, charCode++) {
-      //   dispatch(placePiece({
-      //     position: String.fromCharCode(charCode) + "2",
-      //     type: PieceType.PAWN,
-      //     color: PieceColor.WHITE
-      //   }))
-      //   dispatch(placePiece({
-      //     position: String.fromCharCode(charCode) + "7",
-      //     type: PieceType.PAWN,
-      //     color: PieceColor.BLACK
-      //   }))
-      // }
-      //
-      // // Place rooks
-      // dispatch(placePiece({ position: "A8", type: PieceType.ROOK, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "H8", type: PieceType.ROOK, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "A1", type: PieceType.ROOK, color: PieceColor.WHITE }))
-      // dispatch(placePiece({ position: "H1", type: PieceType.ROOK, color: PieceColor.WHITE }))
-      //
-      // // Place knights
+      for (let i = 0, charCode = 97; i < 8; i++, charCode++) {
+        dispatch(placePiece({
+          position: String.fromCharCode(charCode) + "2",
+          type: PieceType.PAWN,
+          color: PieceColor.WHITE
+        }))
+        dispatch(placePiece({
+          position: String.fromCharCode(charCode) + "7",
+          type: PieceType.PAWN,
+          color: PieceColor.BLACK
+        }))
+      }
+
+      // Place rooks
+      dispatch(placePiece({ position: "A8", type: PieceType.ROOK, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "H8", type: PieceType.ROOK, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "A1", type: PieceType.ROOK, color: PieceColor.WHITE }))
+      dispatch(placePiece({ position: "H1", type: PieceType.ROOK, color: PieceColor.WHITE }))
+
+      // Place knights
       dispatch(placePiece({ position: "B8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "G8", type: PieceType.KNIGHT, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "B1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
       dispatch(placePiece({ position: "G1", type: PieceType.KNIGHT, color: PieceColor.WHITE }))
-      //
-      // // Place bishops
-      // dispatch(placePiece({ position: "C8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "F8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "C1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
-      // dispatch(placePiece({ position: "F1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
-      //
-      // // Place queens
-      // dispatch(placePiece({ position: "B4", type: PieceType.QUEEN, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
-      //
-      // // Place kings
-      // dispatch(placePiece({ position: "E8", type: PieceType.KING, color: PieceColor.BLACK }))
-      // dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
+
+      // Place bishops
+      dispatch(placePiece({ position: "C8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "F8", type: PieceType.BISHOP, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "C1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
+      dispatch(placePiece({ position: "F1", type: PieceType.BISHOP, color: PieceColor.WHITE }))
+
+      // Place queens
+      dispatch(placePiece({ position: "D8", type: PieceType.QUEEN, color: PieceColor.BLACK }))
+      dispatch(placePiece({ position: "D1", type: PieceType.QUEEN, color: PieceColor.WHITE }))
+
+      // Place kings
       dispatch(placePiece({ position: "E8", type: PieceType.KING, color: PieceColor.BLACK }))
       dispatch(placePiece({ position: "E1", type: PieceType.KING, color: PieceColor.WHITE }))
-
-      dispatch(placePiece({
-        position: "D2",
-        type: PieceType.PAWN,
-        color: PieceColor.WHITE
-      }))
-      dispatch(placePiece({
-        position: "E2",
-        type: PieceType.PAWN,
-        color: PieceColor.WHITE
-      }))
-      dispatch(placePiece({
-        position: "D5",
-        type: PieceType.PAWN,
-        color: PieceColor.BLACK
-      }))
-
-
-      dispatch(placePiece({ position: "F6", type: PieceType.ROOK, color: PieceColor.BLACK }))
-      dispatch(placePiece({ position: "C4", type: PieceType.QUEEN, color: PieceColor.WHITE }))
-      dispatch(placePiece({ position: "B4", type: PieceType.QUEEN, color: PieceColor.BLACK }))
-
     }
-export const { initSquares } = boardSlice.actions
+
+
+/**
+ * Processes check/mate situation
+ */
+export const processGameState = (): AppThunk => (dispatch, getState) => {
+  const { board: { squares }, piece: { current } } = getState()
+  const opponentsColor = getOpponentsColor(current.color)
+  const opponentsKingsSquare = findKingsSquareByColor(opponentsColor, squares)
+  const threatPositionToMyKing = findThreatPosition(current.color, squares)
+
+  // If my turn causes check to my king, travel back in time
+  if (threatPositionToMyKing) {
+
+    // Rollback move
+    dispatch(back())
+
+    // Show error
+    error(LANG.DISPOSING_KING_TO_THREAT)
+
+    // Highlight threat
+    dispatch(showThreat(threatPositionToMyKing))
+
+    // Hide threat
+    setTimeout(() => {
+      dispatch(hideThreat())
+    }, THREAT_SHOW_TIME)
+  }
+
+  if (isCheckTo(opponentsColor, squares)) {
+    const threatTrajectory = buildThreatTrajectory(opponentsColor, squares)
+    dispatch(checkTo({ to: opponentsColor }))
+    dispatch(setThreatTrajectory(threatTrajectory))
+
+    if (isMateTo(opponentsColor, opponentsKingsSquare, threatTrajectory, squares)) {
+      return dispatch(mateTo(opponentsColor))
+    }
+
+    return
+  }
+
+  if (isDraw(opponentsColor, opponentsKingsSquare, squares)) return dispatch(draw())
+
+  return dispatch(clearCheck(current.color))
+}
+
+export const { initSquares, setPossibleMovements } = boardSlice.actions
 
 export const selectSquares = (state: RootState): Squares => state.board.squares
-export const selectActiveSquare = (state: RootState): string => state.board.activeSquare
 export const selectPossibleMovements = (state: RootState): PossibleMovements => state.board.possibleMovements
 export const selectPieceMap = (state: RootState): PieceMap => state.board.pieceMap
 

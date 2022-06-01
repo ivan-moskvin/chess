@@ -41,6 +41,11 @@ const gameSlice = createSlice({
     },
     hideThreat: (state) => {
       state.threatPosition = null
+    },
+    setThreatTrajectory: (state, action: PayloadAction<PiecePosition[]>) => {
+      if (!state.check) return
+
+      state.check.trajectory = action.payload
     }
   },
   extraReducers: builder => {
@@ -54,7 +59,7 @@ const gameSlice = createSlice({
   }
 })
 
-export const { checkTo, mateTo, clearCheck, draw, showThreat, hideThreat } = gameSlice.actions
+export const { checkTo, mateTo, clearCheck, draw, showThreat, hideThreat, setThreatTrajectory } = gameSlice.actions
 
 export const selectGame = (state: RootState) => state.game
 export const selectTurn = (state: RootState) => state.game.turn

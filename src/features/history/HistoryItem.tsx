@@ -7,9 +7,10 @@ import { getPieceIcon } from "../piece/utils"
 
 type HistroyItemProps = {
   historyItem: HistoryItemType
+  last: boolean
 }
 
-export const HistoryItem: FC<HistroyItemProps> = ({ historyItem }) => {
+export const HistoryItem: FC<HistroyItemProps> = ({ historyItem, last }) => {
   const dispatch = useAppDispatch()
 
   const {
@@ -23,7 +24,7 @@ export const HistoryItem: FC<HistroyItemProps> = ({ historyItem }) => {
   } = historyItem
 
   return (
-    <li key={ name } className={ styles.item } onClick={ () => dispatch(traverseToMove(name)) }>
+    <li key={ name } className={ styles.item } onClick={ () => !last ? dispatch(traverseToMove(name)) : null }>
       <div className={ styles.piece }>{ getPieceIcon(type, color) }</div>
       <div className={ styles.move }
       >{ name }

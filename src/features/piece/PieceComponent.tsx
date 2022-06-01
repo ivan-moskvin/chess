@@ -1,5 +1,5 @@
 import styles from "./Piece.module.css"
-import { dragPiece, dropPiece } from "./pieceSlice"
+import { dragHandler, dropPiece } from "./pieceSlice"
 import { FC } from "react"
 import classNames from "classnames"
 import { useDrag } from "react-dnd"
@@ -27,7 +27,7 @@ export const PieceComponent: FC<Props> = ({ piece }) => {
     },
     collect: (monitor) => {
       if (monitor.isDragging()) {
-        dispatch(dragPiece(piece))
+        dispatch(dragHandler(piece))
       }
       return {
         piece: piece,
