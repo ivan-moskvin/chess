@@ -129,7 +129,6 @@ const processPawnToQueen = (): AppThunk => (dispatch, getState) => {
     dispatch(modifyPieceType({ piece, newType: PieceType.QUEEN }))
   }
 }
-
 /**
  * Moving piece to square
  * @param to
@@ -141,9 +140,9 @@ export const movePieceTo = (to: PiecePosition): AppThunk => (dispatch, getState)
 
   dispatch(pieceSlice.actions.setCurrent({ ...current, position: to }))
   dispatch(movePieceFromTo({ from: current.position as PiecePosition, to, piece: getCurrent(), type: movementType }))
+  dispatch(historySnapshot(getHistoryItemName(current.position, to, movementType)))
   dispatch(processPawnToQueen())
   dispatch(processGameState())
-  dispatch(historySnapshot(getHistoryItemName(current.position, to, movementType)))
 }
 
 export const { setCurrent } = pieceSlice.actions

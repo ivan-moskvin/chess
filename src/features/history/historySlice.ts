@@ -1,6 +1,7 @@
 import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { AppThunk, RootState } from "../../app/store"
 import { HistoryItem } from "./types"
+import { processGameState } from "../board/boardSlice"
 
 const historySlice = createSlice({
   name: "history",
@@ -30,7 +31,7 @@ export const historySnapshot = (name: string): AppThunk => (dispatch, getState) 
  * Traverses in time to move
  * @param to
  */
-export const traverseToMove = (to: string): AppThunk => (dispatch, getState) => {
+const traverseToMove = (to: string): AppThunk => (dispatch, getState) => {
   let index = 0
   const { history } = getState()
   const snapshot = history.find(({ name }, i) => {
@@ -67,6 +68,15 @@ export const back = (): AppThunk => (dispatch, getState) => {
 
   return dispatch(traverseToMove(prevMoveName))
 }
+
+/**
+ * Time traversal with game state calculations
+ * @param moveName
+ */
+export const traverse = (moveName: string): AppThunk => (dispatch => {
+  dispatch(traverseToMove(moveName))
+  dispatch(processGameState())
+})
 
 export const traverseInTime = createAction<HistoryItem>("history/traverse")
 
