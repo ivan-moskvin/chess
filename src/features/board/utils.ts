@@ -5,6 +5,15 @@ import { PieceColor, PieceType } from "../piece/enums"
 import { TrajectoryDirection } from "./enums"
 
 /**
+ * Gets piece by position
+ */
+export const getPiece = (pos: PiecePosition, squares: Squares): Piece | null => {
+  const [ y, x ] = getCoordFromPosition(pos)
+
+  return squares[y][x]?.piece
+}
+
+/**
  * Gets opponents color
  * @param color
  */

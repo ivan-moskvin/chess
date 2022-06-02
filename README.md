@@ -22,11 +22,15 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Restrict moves that put king under threat
 - ✅ Castling
 - ✅ Notification system (putting king under threat)
-- ☑️ Notification overlays (check/mate/draw)
-- ☑️ Style notifications
 - ☑️ Tests
-    - ☑️ Smoke
-    - ☑️ Actions
+    - ✅ Placing
+    - ☑️ Game states (check, mate, draw)
+    - ☑️ Moving (patterns, restrictions, actual moving check)
+    - ☑️ Turns change
+    - ☑️ Time travel
+- ☑️ Rotate board on move (and make it optional)
+- ☑️ Notification overlays (check/mate/draw) and possibility to restart a game
+- ☑️ Style notifications
 - ☑️ Analytics
 - ☑️ Persistence
 - ☑️ Optimize graphics
@@ -34,11 +38,10 @@ https://ivan-moskvin.github.io/chess/
 ## Ideas
 
 - ✅ O(n²) → O(n) obstacles search optimization
-- Restricted moves highlighting
+- Chess challenges
 - Pieces beaten / pieces list collections for allies search optimization
 - Beating animation
 - Clock
-- Hotseat multiplayer (rotate board)
 
 ## Credits
 
