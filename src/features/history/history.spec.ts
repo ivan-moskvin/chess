@@ -1,10 +1,10 @@
-import { store } from "../../../app/store";
-import { initSquares } from "../../board/boardSlice";
-import { initPieces } from "../../board/thunks";
-import { selectHistory } from "../historySlice";
-import { back, initHistory } from "../thunks";
-import { movePieceFromTo } from "../../piece/thunks";
-import { getHistoryItemName } from "../utils";
+import { store } from "../../app/store";
+import { initSquares } from "../board/boardSlice";
+import { initPieces } from "../board/thunks";
+import { selectHistory } from "./historySlice";
+import { back, initHistory } from "./thunks";
+import { movePieceFromTo } from "../piece/thunks";
+import { getHistoryItemName } from "./utils";
 
 describe("History", function () {
   const { dispatch, getState } = store

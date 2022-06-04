@@ -1,10 +1,10 @@
-import { initSquares } from "../../board/boardSlice";
-import { initPiecesCheck, initPiecesDraw, initPiecesMate } from "../../../app/piecePositions";
-import { initPieces, processGameState } from "../../board/thunks";
-import { selectCheck, selectDraw, selectMate, selectTurn } from "../gameSlice";
-import { PieceColor } from "../../piece/enums";
-import { store } from "../../../app/store";
-import { movePiece } from "../../piece/pieceSlice";
+import { initSquares } from "../board/boardSlice";
+import { initPiecesCheck, initPiecesDraw, initPiecesMate } from "../../app/piecePositions";
+import { initPieces, processGameState } from "../board/thunks";
+import { selectCheck, selectDraw, selectMate, selectTurn } from "./gameSlice";
+import { PieceColor } from "../piece/enums";
+import { store } from "../../app/store";
+import { movePiece } from "../piece/pieceSlice";
 
 describe("Game", () => {
   const { dispatch, getState } = store
