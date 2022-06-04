@@ -11,6 +11,10 @@ export const store = configureStore({
     game: gameReducer,
     history: historyReducer
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 })
 
 export type AppDispatch = typeof store.dispatch
