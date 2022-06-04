@@ -30,6 +30,13 @@
   background-size: cover;
   box-shadow: 25px 25px 25px #444444;
   border: 1px solid #d08b45;
+  transition-property: var(--rotate-property);
+  transition-duration: var(--rotate-duration);
+  transition-timing-function: var(--rotate-timing-function);
+}
+
+.board--rotated {
+  transform: rotate(180deg);
 }
 
 .squares {

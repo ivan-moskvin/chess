@@ -5,4 +5,7 @@ html {
   --naming-size: 30px;
   --naming-font-size: 20px;
   --shadow-coef: 2px;
+  --rotate-property: transform;
+  --rotate-duration: .5s;
+  --rotate-timing-function: ease-in-out;
 }

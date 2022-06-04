@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.18] - 2022-06-05
+
+### Added
+
+- Options
+- Rotation on turn
+
 ## [0.0.17] - 2022-06-04
 
 ### Added

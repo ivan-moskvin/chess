@@ -273,42 +273,25 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, protectin
    */
   switch (type) {
     case PieceType.PAWN:
-      if (color === PieceColor.BLACK) {
-        if (rank < 6) {
-          positions.add(getPositionFromCoords(rank + 1, file))
-        }
-        if (!piece.moved) {
-          positions.add(getPositionFromCoords(rank + 2, file))
-        }
+      const shifter = color === PieceColor.BLACK ? 1 : -1;
+      // if (color === PieceColor.BLACK) {
+      if (color === PieceColor.BLACK ? rank < 6 : rank > 1) {
+        positions.add(getPositionFromCoords(rank + 1 * shifter, file))
+      }
 
-        // Diagonals
-        if (!!squares[rank + 1][file + 1]?.piece
-          && (squares[rank + 1][file + 1].piece?.color !== color || protectingAlly)) {
+      if (!piece.moved) {
+        positions.add(getPositionFromCoords(rank + 2 * shifter, file))
+      }
 
-          positions.add(getPositionFromCoords(rank + 1, file + 1))
-        }
-        if (!!squares[rank + 1][file - 1]?.piece
-          && (squares[rank + 1][file - 1].piece?.color !== color || protectingAlly)) {
-          positions.add(getPositionFromCoords(rank + 1, file - 1))
-        }
-      } else {
-        if (rank > 1) {
-          positions.add(getPositionFromCoords(rank - 1, file))
-        }
-        if (!piece.moved) {
-          positions.add(getPositionFromCoords(rank - 2, file))
-        }
+      // Diagonals
+      if (!!squares[rank + 1 * shifter][file + 1]?.piece
+        && (squares[rank + 1 * shifter][file + 1].piece?.color !== color || protectingAlly)) {
 
-        // Diagonals
-        if (!!squares[rank - 1][file + 1]?.piece
-          && (squares[rank - 1][file + 1].piece?.color !== color || protectingAlly)) {
-
-          positions.add(getPositionFromCoords(rank - 1, file + 1))
-        }
-        if (!!squares[rank - 1][file - 1]?.piece
-          && (squares[rank - 1][file - 1].piece?.color !== color || protectingAlly)) {
-          positions.add(getPositionFromCoords(rank - 1, file - 1))
-        }
+        positions.add(getPositionFromCoords(rank + 1 * shifter, file + 1))
+      }
+      if (!!squares[rank + 1 * shifter][file - 1]?.piece
+        && (squares[rank + 1 * shifter][file - 1].piece?.color !== color || protectingAlly)) {
+        positions.add(getPositionFromCoords(rank + 1 * shifter, file - 1))
       }
 
       break
@@ -552,7 +535,7 @@ export const buildThreatTrajectory = (to: PieceColor, squares: Squares): PiecePo
 
   for (let piece of opponentsPieces) {
     const moves = buildPossibleMovements(piece, squares, false, false)
-    
+
     if (moves.has(allyKing.position)) {
       const [ y0, x0 ] = getCoordFromPosition(piece.position)
 

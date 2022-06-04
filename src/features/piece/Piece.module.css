@@ -21,6 +21,13 @@
   height: 65px;
   background-color: transparent;
   background-repeat: no-repeat;
+  transition-property: var(--rotate-property);
+  transition-duration: var(--rotate-duration);
+  transition-timing-function: var(--rotate-timing-function);
+}
+
+.piece--rotated {
+  transform: rotate(-180deg);
 }
 
 .black_pawn {

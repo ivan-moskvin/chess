@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { SquareColor } from "../square/enums"
 import { RootState } from "../../app/store"
 import { dropPiece, modifyPieceType, movePiece, placePiece } from "../piece/pieceSlice"
-import { checkTo, clearCheck } from "../game/gameSlice"
+import { checkTo, clearCheck, selectTurn } from "../game/gameSlice"
 import { traverseInTime } from "../history/historySlice"
 import { Square, Squares } from "../square/types"
 import { Board, PieceMap, PossibleMovements } from "./types"
@@ -19,6 +19,8 @@ import {
 } from "./constants"
 import { CHAR_A_CODE } from "../../app/constants"
 import { Check } from "../game/types"
+import { PieceColor } from "../piece/enums";
+import { selectOptions } from "../options/optionsSlice";
 
 const initialState: Board = {
   squares: [],
@@ -165,5 +167,6 @@ export const { initSquares, setPossibleMovements } = boardSlice.actions
 export const selectSquares = (state: RootState): Squares => state.board.squares
 export const selectPossibleMovements = (state: RootState): PossibleMovements => state.board.possibleMovements
 export const selectPieceMap = (state: RootState): PieceMap => state.board.pieceMap
+export const selectBoardRotated = (state: RootState): boolean => selectTurn(state) === PieceColor.BLACK && selectOptions(state).ENABLE_ROTATION
 
 export default boardSlice.reducer
