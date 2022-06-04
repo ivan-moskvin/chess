@@ -50,7 +50,7 @@ export const PieceComponent: FC<Props> = ({ piece }) => {
       [styles.dragging]: collected.isDragging,
       [styles.threat]: piece.position === threatPosition,
       [styles.piece]: true,
-      [styles["piece--rotated"]]: boardRotated,
+      [styles.rotated]: boardRotated,
       [styles[`${ color.toLowerCase() }_${ type.toLowerCase() }`]]: true
     })
     }
