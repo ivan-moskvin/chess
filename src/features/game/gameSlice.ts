@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { movePieceFromTo } from "../piece/pieceSlice"
+import { movePiece } from "../piece/pieceSlice"
 import { RootState } from "../../app/store"
 import { traverseInTime } from "../history/historySlice"
 import { Check, Game } from "./types"
@@ -50,7 +50,7 @@ const gameSlice = createSlice({
   },
   extraReducers: builder => {
     // Toggle turn when move is done
-    builder.addCase(movePieceFromTo, (state) => {
+    builder.addCase(movePiece, (state) => {
       state.turn = state.turn === PieceColor.BLACK ? PieceColor.WHITE : PieceColor.BLACK
     })
     builder.addCase(traverseInTime, (state, action) => {

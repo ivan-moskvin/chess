@@ -133,14 +133,6 @@ export const getAlliedRooksUnmoved = (piece: Piece, squares: Squares): Piece[] =
 }
 
 /**
- * Gets piece by position
- */
-export const getPieceByPosition = (position: PiecePosition, squares: Squares): Piece | null => {
-  const [ y, x ] = getCoordFromPosition(position)
-  return squares[y][x]?.piece || null
-}
-
-/**
  * Gets piece map name
  * @param type
  * @param color

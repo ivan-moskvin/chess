@@ -1,11 +1,12 @@
 import styles from "./Piece.module.css"
-import { dragHandler, dropPiece } from "./pieceSlice"
+import { dropPiece } from "./pieceSlice"
 import { FC } from "react"
 import classNames from "classnames"
 import { useDrag } from "react-dnd"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectGameOver, selectThreat, selectTurn } from "../game/gameSlice"
 import { Piece } from "./types"
+import { dragHandler } from "./thunks";
 
 interface Props {
   piece: Piece;

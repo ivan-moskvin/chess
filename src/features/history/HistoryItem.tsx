@@ -1,9 +1,9 @@
 import { FC } from "react"
-import { traverse } from "./historySlice"
 import styles from "./History.module.css"
 import { useAppDispatch } from "../../app/hooks"
 import { HistoryItem as HistoryItemType } from "./types"
 import { getPieceIcon } from "../piece/utils"
+import { traverse } from "./thunks";
 
 type HistroyItemProps = {
   historyItem: HistoryItemType

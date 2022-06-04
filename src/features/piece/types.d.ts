@@ -1,7 +1,7 @@
 import { MovementType } from "../board/enums";
 
 export interface Piece {
-  position: string,
+  position: PiecePosition,
   type: PieceType,
   color: PieceColor,
   moved?: boolean,
@@ -15,10 +15,9 @@ export interface Piece {
 export type PlacePiece = Pick<Piece, "position", "type", "color">
 
 export interface Movement {
-  from: string,
-  to: string,
-  piece: Piece,
-  type: MovementType
+  from: PiecePosition,
+  to: PiecePosition,
+  type?: MovementType
 }
 
 export interface ModifyType {

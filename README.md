@@ -22,12 +22,12 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Restrict moves that put king under threat
 - ✅ Castling
 - ✅ Notification system (putting king under threat)
-- ☑️ Tests
+- ✅ Tests
     - ✅ Placing
-    - ☑️ Game states (check, mate, draw)
-    - ☑️ Moving (patterns, restrictions, actual moving check)
-    - ☑️ Turns change
-    - ☑️ Time travel
+    - ✅ Game states (check, mate, draw)
+    - ✅ Moving (patterns, restrictions, actual moving check)
+    - ✅ Turns change
+    - ✅ Time travel
 - ☑️ Rotate board on move (and make it optional)
 - ☑️ Notification overlays (check/mate/draw) and possibility to restart a game
 - ☑️ Style notifications

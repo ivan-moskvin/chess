@@ -5,12 +5,13 @@ import classNames from "classnames"
 import { PieceComponent } from "../piece/PieceComponent"
 import { useDrop } from "react-dnd"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { movePieceTo, selectCurrentPiece } from "../piece/pieceSlice"
+import { selectCurrentPiece } from "../piece/pieceSlice"
 import { Square } from "./types"
 import { SquareColor } from "./enums"
 import { useSelector } from "react-redux"
 import { selectPossibleMovements } from "../board/boardSlice"
 import _ from "underscore"
+import { movePieceTo } from "../piece/thunks";
 
 interface Props {
   square: Square

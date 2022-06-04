@@ -3,10 +3,11 @@ import React, { useEffect } from "react"
 import { Board } from "./features/board/Board"
 import styles from "./App.module.css"
 import { useAppDispatch } from "./app/hooks"
-import { initPieces, initSquares } from "./features/board/boardSlice"
-import { historySnapshot } from "./features/history/historySlice"
+import { initSquares } from "./features/board/boardSlice"
 import "react-toastify/dist/ReactToastify.css"
 import { ToastContainer } from "react-toastify"
+import { initHistory } from "./features/history/thunks";
+import { initPieces } from "./features/board/thunks";
 
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
   useEffect(() => {
     dispatch(initSquares())
     dispatch(initPieces())
-    dispatch(historySnapshot("init"))
+    dispatch(initHistory())
 
   }, [ dispatch ])
 

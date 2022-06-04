@@ -7,7 +7,7 @@ import { TrajectoryDirection } from "./enums"
 /**
  * Gets piece by position
  */
-export const getPiece = (pos: PiecePosition, squares: Squares): Piece | null => {
+export const getPieceByPosition = (pos: PiecePosition, squares: Squares): Piece | null => {
   const [ y, x ] = getCoordFromPosition(pos)
 
   return squares[y][x]?.piece
