@@ -29,8 +29,8 @@ https://ivan-moskvin.github.io/chess/
     - ✅ Turns change
     - ✅ Time travel
 - ✅ Rotate board on move (and make it optional)
-- ☑️ Notification overlays (check/mate/draw) and possibility to restart a game
-- ☑️ Style notifications
+- ✅ Possibility to restart a game
+- ✅ Style notifications
 - ☑️ Analytics
 - ☑️ Persistence
 - ☑️ Optimize graphics

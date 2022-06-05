@@ -6,6 +6,18 @@ html {
   --naming-font-size: 20px;
   --shadow-coef: 2px;
   --rotate-property: transform;
-  --rotate-duration: .5s;
+  --rotate-duration: 1.5s;
   --rotate-timing-function: ease-in-out;
+
+  --board-background-color: #d08b45;
+  --board-border-color: #9b6633;
+  --board-box-shadow-color: #444444;
+  --squares-box-shadow-color: #7d512a;
+
+  --info-text-color: #7d512a;
+}
+
+:root {
+  --toastify-color-dark: var(--board-background-color);
+  --toastify-text-color-dark: var(--info-text-color);
 }

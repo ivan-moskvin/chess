@@ -1,12 +1,12 @@
 import { AppThunk } from "../../app/store";
 import { processGameState } from "../board/thunks";
-import { clear, push, slice, traverseInTime } from "./historySlice";
+import { clearHistory, push, slice, traverseInTime } from "./historySlice";
 
 /**
  * Inits history
  */
 export const initHistory = (): AppThunk => (dispatch) => {
-  dispatch(clear)
+  dispatch(clearHistory())
   dispatch(historySnapshot("init"))
 }
 

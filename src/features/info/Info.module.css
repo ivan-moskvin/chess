@@ -31,7 +31,7 @@
 .content {
   position: relative;
   z-index: 1;
-  color: #7d512a;
+  color: var(--info-text-color);
   font-size: 15px;
   line-height: 15px;
 }

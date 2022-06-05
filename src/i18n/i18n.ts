@@ -2,23 +2,25 @@ import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
 import LanguageDetector from "i18next-browser-languagedetector"
 
-export const LANG = {
-  TURN: "TURN",
-  WHITE: "WHITE",
-  BLACK: "BLACK",
-  MOVES: "MOVES",
-  CHECK: "CHECK",
-  MATE: "MATE",
-  DRAW: "DRAW",
-  CASTLE: "CASTLE",
-  DISPOSING_KING_TO_THREAT: "DISPOSING_KING_TO_THREAT",
-  OPTIONS: "OPTIONS",
-  ENABLE_ROTATION: "ENABLE_ROTATION"
+export enum LANG {
+  TURN = "TURN",
+  WHITE = "WHITE",
+  BLACK = "BLACK",
+  MOVES = "MOVES",
+  CHECK = "CHECK",
+  MATE = "MATE",
+  DRAW = "DRAW",
+  CASTLE = "CASTLE",
+  DISPOSING_KING_TO_THREAT = "DISPOSING_KING_TO_THREAT",
+  OPTIONS = "OPTIONS",
+  ENABLE_ROTATION = "ENABLE_ROTATION",
+  NEW_GAME = "NEW_GAME"
 }
 
 const resources = {
   ru: {
     translation: {
+      [LANG.NEW_GAME]: "Новая игра",
       [LANG.TURN]: "Ход",
       [LANG.WHITE]: "Белые",
       [LANG.BLACK]: "Черные",
@@ -34,6 +36,7 @@ const resources = {
   },
   en: {
     translation: {
+      [LANG.NEW_GAME]: "New game",
       [LANG.TURN]: "Turn",
       [LANG.WHITE]: "White",
       [LANG.BLACK]: "Black",

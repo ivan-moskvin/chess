@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
 const initialState = {
-  ENABLE_ROTATION: true
+  ENABLE_ROTATION: false
 }
 
 const optionsSlice = createSlice({

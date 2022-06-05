@@ -19,6 +19,7 @@ const gameSlice = createSlice({
   name: "game",
   initialState,
   reducers: {
+    resetGame: () => initialState,
     checkTo: (state, action: PayloadAction<Check>) => {
       state.check = {
         to: action.payload.to
@@ -56,10 +57,20 @@ const gameSlice = createSlice({
     builder.addCase(traverseInTime, (state, action) => {
       return action.payload.game
     })
+    builder.addCase(resetGame, () => initialState)
   }
 })
 
-export const { checkTo, mateTo, clearCheck, draw, showThreat, hideThreat, setThreatTrajectory } = gameSlice.actions
+export const {
+  resetGame,
+  checkTo,
+  mateTo,
+  clearCheck,
+  draw,
+  showThreat,
+  hideThreat,
+  setThreatTrajectory
+} = gameSlice.actions
 
 export const selectGame = (state: RootState) => state.game
 export const selectTurn = (state: RootState) => state.game.turn

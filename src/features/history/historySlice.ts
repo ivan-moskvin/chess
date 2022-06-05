@@ -12,11 +12,11 @@ export const historySlice = createSlice({
     slice: (state, action: PayloadAction<number>) => {
       return state.slice(0, action.payload + 1)
     },
-    clear: () => [],
+    clearHistory: () => [],
   }
 })
 
-export const { push, slice, clear } = historySlice.actions
+export const { push, slice, clearHistory } = historySlice.actions
 
 export const traverseInTime = createAction<HistoryItem>("history/traverse")
 

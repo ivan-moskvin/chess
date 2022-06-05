@@ -5,7 +5,7 @@ import classNames from "classnames"
 import { PieceComponent } from "../piece/PieceComponent"
 import { useDrop } from "react-dnd"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { selectCurrentPiece } from "../piece/pieceSlice"
+import { selectCurrentPiece, setLast } from "../piece/pieceSlice"
 import { Square } from "./types"
 import { SquareColor } from "./enums"
 import { useSelector } from "react-redux"
@@ -27,6 +27,7 @@ export const SquareComponent: FC<Props> = ({ square }) => {
     drop: () => {
       if (square.position !== currentPiece.position) {
         dispatch(movePieceTo(square.position))
+        dispatch(setLast(square.position))
       }
     },
     canDrop: () => {
@@ -48,5 +49,6 @@ export const SquareComponent: FC<Props> = ({ square }) => {
         [styles.white]: square.color === SquareColor.WHITE
       })
     }
-  >{ square.piece ? <PieceComponent piece={ square.piece }/> : null }</div>
+  >{ square.piece ?
+    <PieceComponent piece={ square.piece }/> : null }</div>
 }
