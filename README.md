@@ -31,7 +31,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Rotate board on move (and make it optional)
 - ✅ Possibility to restart a game
 - ✅ Style notifications
-- ☑️ Analytics
+- ✅ Analytics
 - ☑️ Persistence
 - ☑️ Optimize graphics
 
