@@ -30,6 +30,7 @@
   background-size: cover;
   box-shadow: 25px 25px 25px var(--board-box-shadow-color);
   border: 1px solid var(--board-background-color);
+  border-radius: 4px;
   transition-property: var(--rotate-property);
   transition-duration: var(--rotate-duration);
   transition-timing-function: var(--rotate-timing-function);
@@ -45,6 +46,8 @@
   flex-flow: column;
   flex-wrap: nowrap;
   border: 1px solid var(--board-border-color);
+
+  border-radius: 4px;
   box-shadow: 0 0 var(--shadow-coef) var(--squares-box-shadow-color);
   z-index: 1;
 }

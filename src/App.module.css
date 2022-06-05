@@ -16,8 +16,3 @@ html {
 
   --info-text-color: #7d512a;
 }
-
-:root {
-  --toastify-color-dark: var(--board-background-color);
-  --toastify-text-color-dark: var(--info-text-color);
-}

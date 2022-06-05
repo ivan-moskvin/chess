@@ -29,7 +29,10 @@ export const PieceComponent: FC<Props> = ({ piece }) => {
   /**
    * Initially we should rotate every piece but current depending on board rotation state
    */
-  const getInitialRotationState = () => boardRotated ? last !== piece.position : last === piece.position
+  const getInitialRotationState = () => {
+    if (!boardRotationEnabled) return false
+    return boardRotated ? last !== piece.position : last === piece.position
+  }
   const [ rotate, setRotate ] = useState<boolean>(getInitialRotationState())
 
   useEffect(() => {

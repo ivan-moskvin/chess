@@ -1,0 +1,14 @@
+/**
+Overrides toastify styles
+ */
+
+.Toastify__toast {
+  position: relative;
+  --toastify-color-dark: var(--board-background-color);
+  --toastify-text-color-dark: var(--info-text-color);
+
+  background-color: var(--board-background-color);
+  box-shadow: 25px 25px 25px #444444;
+  border: 1px solid #d08b45;
+  z-index: 0;
+}
