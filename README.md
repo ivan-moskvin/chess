@@ -32,8 +32,8 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Possibility to restart a game
 - ✅ Style notifications
 - ✅ Analytics
+- ✅ Optimize graphics
 - ☑️ Persistence
-- ☑️ Optimize graphics
 
 ## Ideas
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2022-06-05
+
+### Changed
+
+- Optimized background image
+
 ## [0.1.0] - 2022-06-05
 
 ### Added
