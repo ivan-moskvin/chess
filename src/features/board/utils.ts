@@ -208,24 +208,26 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, protectin
   switch (type) {
     case PieceType.PAWN:
       const shifter = color === PieceColor.BLACK ? 1 : -1
-      // if (color === PieceColor.BLACK) {
-      if (color === PieceColor.BLACK ? rank < 6 : rank > 1) {
-        positions.add(getPositionFromCoords(rank + 1 * shifter, file))
+      const farCell = rank + 2 * shifter
+      const closeCell = rank + 1 * shifter
+
+      if ((color === PieceColor.BLACK ? rank < 6 : rank > 1) && !squares[closeCell][file]?.piece) {
+        positions.add(getPositionFromCoords(closeCell, file))
       }
 
-      if (!piece.moved) {
-        positions.add(getPositionFromCoords(rank + 2 * shifter, file))
+      if (!piece.moved && !squares[farCell][file]?.piece) {
+        positions.add(getPositionFromCoords(farCell, file))
       }
 
       // Diagonals
       if (!!squares[rank + 1 * shifter][file + 1]?.piece
         && (squares[rank + 1 * shifter][file + 1].piece?.color !== color || protectingAlly)) {
 
-        positions.add(getPositionFromCoords(rank + 1 * shifter, file + 1))
+        positions.add(getPositionFromCoords(closeCell, file + 1))
       }
       if (!!squares[rank + 1 * shifter][file - 1]?.piece
         && (squares[rank + 1 * shifter][file - 1].piece?.color !== color || protectingAlly)) {
-        positions.add(getPositionFromCoords(rank + 1 * shifter, file - 1))
+        positions.add(getPositionFromCoords(closeCell, file - 1))
       }
 
       break
