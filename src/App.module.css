@@ -6,7 +6,7 @@ html {
   --naming-font-size: 20px;
   --shadow-coef: 2px;
   --rotate-property: transform;
-  --rotate-duration: 1.5s;
+  --rotate-duration: .8s;
   --rotate-timing-function: ease-in-out;
 
   --board-background-color: #d08b45;
