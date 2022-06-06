@@ -45,6 +45,6 @@ export const movePiece = createAction<Movement>("piece/move-from-to")
 export const { setCurrent, setLast } = pieceSlice.actions
 
 export const selectCurrentPiece = (state: RootState) => state.piece.current
-export const selectLast = (state: RootState) => state.piece.last
+export const selectLastMovedPiece = (state: RootState) => state.piece.last
 
 export default pieceSlice.reducer

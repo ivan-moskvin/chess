@@ -28,13 +28,6 @@ export const getPieceIcon = (type: PieceType, color: PieceColor): string => {
 }
 
 /**
- * Checks if piece has color different from provided
- * @param piece
- * @param color
- */
-export const pieceHasDiffColor = (piece: Piece, color: PieceColor): boolean => !!piece && piece.color !== color
-
-/**
  * Gets coords from position name
  * @param position
  */
@@ -139,6 +132,12 @@ export const getAlliedRooksUnmoved = (piece: Piece, squares: Squares): Piece[] =
  */
 export const getPieceMapName = ({ type, color }: Partial<Piece>): string => `${ color }_${ type }`
 
+/**
+ * Filter kings moves
+ * @param possibleMovements
+ * @param color
+ * @param squares
+ */
 export const filterKingsMoves = (possibleMovements: Set<PiecePosition>, color: PieceColor, squares: Squares) => {
   // Find enemy pieces
   const threateningPieces = getOpponentsPieces(color, squares)

@@ -24,21 +24,6 @@ export const getOpponentsColor = (color: PieceColor): PieceColor => {
 }
 
 /**
- * Find square by position
- * @param position
- * @param squares
- */
-export const findSquare = (position: PiecePosition, squares: Squares): Square => {
-  for (let i = 0; i < squares.length; i++) {
-    for (let j = 0; j < squares[0].length; j++) {
-      if (squares[i][j].position === position) return squares[i][j]
-    }
-  }
-
-  return {} as Square
-}
-
-/**
  * Finds king by color
  * @param color
  * @param squares
@@ -57,57 +42,6 @@ export const findKingsSquareByColor = (color: PieceColor, squares: Squares): Squ
   return {} as Square
 }
 
-/**
- * Checks if there are obstacles between two squares
- * @param y0
- * @param x0
- * @param y1
- * @param x1
- * @param squares
- * @param ignoringPiecePosition
- */
-export const haveObstaclesBetween = (y0: number, x0: number, y1: number, x1: number, squares: Squares, ignoringPiecePosition?: PiecePosition): boolean => {
-  if (y0 === y1 && x0 === x1) return false
-
-  // If it's horizontal move
-  if (y0 === y1) {
-    // Check all horizontal pieces in between start and end
-    for (let i = Math.min(x0, x1) + 1; i < Math.max(x0, x1); i++) {
-      if (squares[y0][i]?.piece?.position === ignoringPiecePosition) continue
-      if (!!squares[y0][i]?.piece?.type) return true
-    }
-  }
-
-  // If it's vertical move
-  if (x0 === x1) {
-    // Check all vertical pieces in between start and end
-    for (let i = Math.min(y0, y1) + 1; i < Math.max(y0, y1); i++) {
-      if (squares[i][x0]?.piece?.position === ignoringPiecePosition) continue
-      if (!!squares[i][x0]?.piece?.type) return true
-    }
-  }
-
-  // If it's diagonal move
-  if (y1 !== y0 && x1 !== x0) {
-    // Check north-west or south-east
-    if ((x1 < x0 && y1 < y0) || (x1 > x0 && y1 > y0)) {
-      for (let i = Math.min(y0, y1) + 1, j = Math.min(x0, x1) + 1; i < Math.max(y0, y1) && j < Math.max(x0, x1); i++, j++) {
-        if (squares[i][j]?.piece?.position === ignoringPiecePosition) continue
-        if (!!squares[i][j]?.piece?.type) return true
-      }
-    }
-
-    // Check south-west and north-east
-    if ((x1 < x0 && y1 > y0) || (x1 > x0 && y1 < y0)) {
-      for (let i = Math.max(y0, y1) - 1, j = Math.min(x0, x1) + 1; i > Math.min(y0, y1) && j < Math.max(x0, x1); i--, j++) {
-        if (squares[i][j]?.piece?.position === ignoringPiecePosition) continue
-        if (!!squares[i][j]?.piece?.type) return true
-      }
-    }
-  }
-
-  return false
-}
 /**
  * Gets allied pieces
  * @param allyColor
@@ -273,7 +207,7 @@ export const buildPossibleMovements = (piece: Piece, squares: Squares, protectin
    */
   switch (type) {
     case PieceType.PAWN:
-      const shifter = color === PieceColor.BLACK ? 1 : -1;
+      const shifter = color === PieceColor.BLACK ? 1 : -1
       // if (color === PieceColor.BLACK) {
       if (color === PieceColor.BLACK ? rank < 6 : rank > 1) {
         positions.add(getPositionFromCoords(rank + 1 * shifter, file))

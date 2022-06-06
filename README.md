@@ -33,7 +33,7 @@ https://ivan-moskvin.github.io/chess/
 - ✅ Style notifications
 - ✅ Analytics
 - ✅ Optimize graphics
-- ☑️ Persistence
+- ✅ Persistence
 
 ## Ideas
 

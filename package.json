@@ -1,6 +1,6 @@
 {
   "name": "chess-pet-project",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "homepage": "https://ivan-moskvin.github.io/chess/",
   "private": true,
   "dependencies": {
@@ -24,6 +24,7 @@
     "react-redux": "^8.0.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^9.0.2",
+    "redux-persist": "^6.0.0",
     "typescript": "^4.6.4",
     "underscore": "^1.13.3",
     "web-vitals": "^2.1.4"

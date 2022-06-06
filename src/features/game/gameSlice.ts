@@ -78,6 +78,6 @@ export const selectCheck = (state: RootState) => state.game.check
 export const selectMate = (state: RootState) => state.game.mateTo
 export const selectDraw = (state: RootState) => state.game.draw
 export const selectGameOver = (state: RootState) => state.game.gameOver
-export const selectThreat = (state: RootState) => state.game.threatPosition
+export const selectThreatPosition = (state: RootState) => state.game.threatPosition
 
 export default gameSlice.reducer
