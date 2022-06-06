@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.3] - 2022-06-06
+
+### Fixed
+
+- Rel noopener to source code link
+
 ## [0.2.2] - 2022-06-06
 
 ### Added
