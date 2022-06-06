@@ -14,7 +14,8 @@ export enum LANG {
   DISPOSING_KING_TO_THREAT = "DISPOSING_KING_TO_THREAT",
   OPTIONS = "OPTIONS",
   ENABLE_ROTATION = "ENABLE_ROTATION",
-  NEW_GAME = "NEW_GAME"
+  NEW_GAME = "NEW_GAME",
+  REPO = "REPO"
 }
 
 const resources = {
@@ -31,7 +32,8 @@ const resources = {
       [LANG.CASTLE]: "рокировка",
       [LANG.DISPOSING_KING_TO_THREAT]: "Нельзя подставлять короля под угрозу",
       [LANG.OPTIONS]: "Настройки",
-      [LANG.ENABLE_ROTATION]: "Поворот поля при ходе"
+      [LANG.ENABLE_ROTATION]: "Поворот поля при ходе",
+      [LANG.REPO]: "Исходники"
     }
   },
   en: {
@@ -47,7 +49,8 @@ const resources = {
       [LANG.CASTLE]: "castle",
       [LANG.DISPOSING_KING_TO_THREAT]: "Cannot dispose king to threat",
       [LANG.OPTIONS]: "Options",
-      [LANG.ENABLE_ROTATION]: "Rotate field on move"
+      [LANG.ENABLE_ROTATION]: "Rotate field on move",
+      [LANG.REPO]: "Source code"
     }
   }
 }
