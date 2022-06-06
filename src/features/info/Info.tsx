@@ -22,15 +22,16 @@ export const Info = () => {
     <section className={ styles.info }>
       <div className={ styles.content }>
         { check && <h2
-            className={ classNames([ styles.checkState, styles.state ]) }>{ t(LANG.CHECK) }({ getGameStateIndicator(check.to) })</h2> }
+          className={ classNames([ styles.checkState, styles.state ]) }>{ t(LANG.CHECK) }({ getGameStateIndicator(check.to) })</h2> }
         { mateTo && <h2
-            className={ classNames([ styles.mateState, styles.state ]) }>{ t(LANG.MATE) }({ getGameStateIndicator(mateTo) })</h2> }
+          className={ classNames([ styles.mateState, styles.state ]) }>{ t(LANG.MATE) }({ getGameStateIndicator(mateTo) })</h2> }
         { draw && <h2
-            className={ classNames([ styles.drawState, styles.state ]) }>{ t(LANG.DRAW) }</h2> }
+          className={ classNames([ styles.drawState, styles.state ]) }>{ t(LANG.DRAW) }</h2> }
         { !mateTo && !draw && !check && <p>{ t(LANG.TURN) }: <strong>{ t(turn) }</strong></p> }
         <History/>
         <Options/>
-        <p><a href="https://github.com/ivan-moskvin/chess" target="_blank">{ t<string>(LANG.REPO) } </a></p>
+        <p><a href="https://github.com/ivan-moskvin/chess" target="_blank"
+              rel="noreferrer">{ t<string>(LANG.REPO) } </a></p>
       </div>
 
     </section>
