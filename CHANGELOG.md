@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.4] - 2022-06-06
+
+### Fixed
+
+- Dependabot alert
+
 ## [0.2.3] - 2022-06-06
 
 ### Fixed
