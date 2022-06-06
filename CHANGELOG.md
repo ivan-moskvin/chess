@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.2] - 2022-06-06
+
+### Fixed
+
+- Pawn beating pattern
+
 ## [0.1.1] - 2022-06-05
 
 ### Changed
