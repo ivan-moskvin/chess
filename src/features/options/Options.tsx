@@ -1,9 +1,9 @@
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { selectOptions, toggleRotation } from "./optionsSlice";
-import { t } from "i18next";
+import { useAppDispatch, useAppSelector } from "../../app/hooks"
+import { selectOptions } from "./optionsSlice"
+import { t } from "i18next"
 import styles from "./Options.module.css"
-import { LANG } from "../../i18n/i18n";
-import { newGame } from "../game/thunks";
+import { LANG } from "../../i18n/i18n"
+import { newGame } from "../game/thunks"
 
 export const Options = () => {
   const options = useAppSelector(selectOptions)
@@ -15,13 +15,13 @@ export const Options = () => {
       <div>
         <button className={ styles.newGame } onClick={ () => dispatch(newGame()) }>{ t<string>(LANG.NEW_GAME) }</button>
       </div>
-      <div>
-        <label htmlFor="ENABLE_ROTATION">{ t<string>(LANG.ENABLE_ROTATION) }</label>:
-        <input id="ENABLE_ROTATION"
-               type="checkbox"
-               onChange={ () => dispatch(toggleRotation()) }
-               checked={ options.ENABLE_ROTATION }/>
-      </div>
+      {/*<div>*/ }
+      {/*  <label htmlFor="ENABLE_ROTATION">{ t<string>(LANG.ENABLE_ROTATION) }</label>:*/ }
+      {/*  <input id="ENABLE_ROTATION"*/ }
+      {/*         type="checkbox"*/ }
+      {/*         onChange={ () => dispatch(toggleRotation()) }*/ }
+      {/*         checked={ options.ENABLE_ROTATION }/>*/ }
+      {/*</div>*/ }
     </section>
   )
 }
